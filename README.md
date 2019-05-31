@@ -9,6 +9,18 @@
 $ composer require overtrue/laravel-versionable -vvv
 ```
 
+Optional, you can publish the config file:
+
+```bash
+$ php artisan vendor:publish --provider="Overtrue\\LaravelVersionable\\ServiceProvider" --tag=config
+```
+
+Then run this command to create a database migration:
+
+```bash
+$ php artisan migrate
+```
+
 ## Usage
 
 Add `Overtrue\LaravelVersionable\Versionable` trait to the model and set versionable attributes:
@@ -20,14 +32,55 @@ class Post extends Model
 {
     use Versionable;
     
+    /**
+     * Versionable attributes
+     *
+     * @var array
+     */
     protected $versionable = ['title', 'content'];
     
     <...>
 }
 ```
 
-//todo
+Versions will be created on vensionable model saved.
 
+```php
+$post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+$post->update(['title' => 'version2']);
+```
+
+### Get versions
+
+Get all versions
+
+```php
+$post->versions;
+```
+
+Get last version
+
+```php
+$post->lastVersion;
+```
+
+### Reversion
+
+Reversion a model instance to the specified version:
+
+```php
+$post->getVersion(3)->revert();
+
+// or
+
+$post->revertToVersion(3);
+```
+
+### Remove All versions
+
+```php
+$post->removeAllVersions();
+```
 
 ## Contributing
 

@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of the overtrue/laravel-versionable.
+ *
+ * (c) overtrue <i@overtrue.me>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
@@ -105,6 +113,7 @@ trait Versionable
      * @param array $attributes
      *
      * @return $this
+     *
      * @throws \Exception
      */
     public function setVersionable(array $attributes)
@@ -122,6 +131,7 @@ trait Versionable
      * @param array $attributes
      *
      * @return $this
+     *
      * @throws \Exception
      */
     public function setDontVersionable(array $attributes)

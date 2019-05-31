@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the overtrue/laravel-like.
+ * This file is part of the overtrue/laravel-versionable.
  *
- * (c) overtrue <anzhengchao@gmail.com>
+ * (c) overtrue <i@overtrue.me>
  *
  * This source file is subject to the MIT license that is bundled.
  */
@@ -28,7 +28,7 @@ class Post extends Model
     {
         parent::boot();
 
-        static::saving(function(Post $post){
+        static::saving(function (Post $post) {
             $post->user_id = \auth()->id();
         });
     }

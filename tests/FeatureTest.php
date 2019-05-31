@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the overtrue/laravel-like.
+ * This file is part of the overtrue/laravel-versionable.
  *
- * (c) overtrue <anzhengchao@gmail.com>
+ * (c) overtrue <i@overtrue.me>
  *
  * This source file is subject to the MIT license that is bundled.
  */
@@ -17,7 +17,7 @@ class FeatureTest extends TestCase
 {
     protected $user;
 
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -81,10 +81,10 @@ class FeatureTest extends TestCase
 
         $this->assertSame("--- Original\n+++ New\n", $post->lastVersion->diff($post));
 
-        $post->update(['title' => 'version2', 'content' => 'version2 content']);
+        $post->update(['title' => 'version2']);
         $post->refresh();
-\dd($post->lastVersion->diff($post->getVersion(1)));
-        $this->assertSame(['title' => 'version2'], $post->lastVersion->diff($post->getVersion(1)));
+
+        $this->assertSame("--- Original\n+++ New\n@@ @@\n-version1\n+version2\n", $post->lastVersion->diff($post->getVersion(1)));
     }
 
     /**

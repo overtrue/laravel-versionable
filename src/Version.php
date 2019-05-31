@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of the overtrue/laravel-versionable.
+ *
+ * (c) overtrue <i@overtrue.me>
+ *
+ * This source file is subject to the MIT license that is bundled.
+ */
+
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,7 +15,7 @@ use Illuminate\Support\Arr;
 use SebastianBergmann\Diff\Differ;
 
 /**
- * Class Version
+ * Class Version.
  *
  * @property Model $versionable
  * @property array $contents
