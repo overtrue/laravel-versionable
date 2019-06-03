@@ -1,6 +1,15 @@
 <h1 align="center"> laravel-versionable </h1>
 
-<p align="center"> Make Laravel model versionable.</p>
+<p align="center"> ⏱️ Make Laravel model versionable.</p>
+
+It's a minimalist way to make your model support version history, and it's very simple to roll back to the specified version.
+
+## Features
+- Keep the specified number of versions.
+- Whitelist and blacklist for versionable attributes.
+- Easily roll back to the specified version.
+- Record only changed attributes.
+- Easy to customize.
 
 
 ## Installing
