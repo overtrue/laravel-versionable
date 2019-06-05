@@ -35,6 +35,12 @@ Optional, you can publish the config file:
 $ php artisan vendor:publish --provider="Overtrue\\LaravelVersionable\\ServiceProvider" --tag=config
 ```
 
+And if you want to custom the migration of the versions table, you can publish the migration file to your database path:
+
+```bash
+$ php artisan vendor:publish --provider="Overtrue\\LaravelVersionable\\ServiceProvider" --tag=migration
+```
+
 Then run this command to create a database migration:
 
 ```bash
