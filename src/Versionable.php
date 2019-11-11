@@ -20,7 +20,7 @@ trait Versionable
     //protected $versionable = [];
     //protected $dontVersionable = ['*'];
 
-     public static function bootVersionable()
+    public static function bootVersionable()
     {
         static::saved(function (Model $model) {
             $this->createVersionForModel($model);
