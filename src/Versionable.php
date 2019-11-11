@@ -20,18 +20,27 @@ trait Versionable
     //protected $versionable = [];
     //protected $dontVersionable = ['*'];
 
-    public static function bootVersionable()
+     public static function bootVersionable()
     {
         static::saved(function (Model $model) {
-            if ($model->shouldVersioning()) {
-                Version::createForModel($model);
-                $model->removeOldVersions($model->getKeepVersionsCount());
-            }
+            $this->createVersionForModel($model);
         });
 
         static::deleted(function (Model $model) {
-            $model->removeAllVersions();
+            if ($model->forceDeleting) {
+                $model->removeAllVersions();
+            } else {
+                $this->createVersionForModel($model);
+            }
         });
+    }
+
+    private function createVersionForModel(Model $model): void
+    {
+        if ($model->shouldVersioning()) {
+            Version::createForModel($model);
+            $model->removeOldVersions($model->getKeepVersionsCount());
+        }
     }
 
     /**
