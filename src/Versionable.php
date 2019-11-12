@@ -115,7 +115,18 @@ trait Versionable
             return [];
         }
 
-        return $this->versionableFromArray($changes);
+        switch ($this->getVersionStrategy()) {
+            case VersionStrategy::DIFF:
+                $contents = $changes;
+                break;
+            case VersionStrategy::SNAPSHOT:
+                $contents = $this->attributesToArray();
+                break;
+            default:
+                $contents = $changes;
+        }
+
+        return $this->versionableFromArray($contents);
     }
 
     /**
@@ -168,6 +179,32 @@ trait Versionable
     public function getDontVersionable(): array
     {
         return \property_exists($this, 'dontVersionable') ? $this->dontVersionable : [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getVersionStrategy()
+    {
+        return \property_exists($this, 'versionStrategy') ? $this->versionStrategy : VersionStrategy::DIFF;
+    }
+
+    /**
+     * @param string $strategy
+     *
+     * @return $this
+     *
+     * @throws \Exception
+     */
+    public function setVersionStrategy(string $strategy)
+    {
+        if (!\property_exists($this, 'versionStrategy')) {
+            throw new \Exception('Property $versionStrategy not exist.');
+        }
+
+        $this->versionStrategy = $strategy;
+
+        return $this;
     }
 
     /**

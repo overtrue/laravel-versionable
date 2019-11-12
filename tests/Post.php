@@ -12,6 +12,7 @@ namespace Tests;
 
 use Illuminate\Database\Eloquent\Model;
 use Overtrue\LaravelVersionable\Versionable;
+use Overtrue\LaravelVersionable\VersionStrategy;
 
 /**
  * Class Post.
@@ -23,6 +24,8 @@ class Post extends Model
     protected $fillable = ['title', 'content', 'user_id'];
 
     protected $versionable = ['title', 'content'];
+
+    protected $versionStrategy = VersionStrategy::DIFF;
 
     protected static function boot()
     {

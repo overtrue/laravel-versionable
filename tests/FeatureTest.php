@@ -10,6 +10,8 @@
 
 namespace Tests;
 
+use Overtrue\LaravelVersionable\VersionStrategy;
+
 /**
  * Class FeatureTest.
  */
@@ -43,6 +45,27 @@ class FeatureTest extends TestCase
 
         $this->assertCount(2, $post->versions);
         $this->assertSame($post->only('title'), $post->lastVersion->contents);
+    }
+
+    /**
+     * @test
+     */
+    public function post_create_version_with_strategy()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $this->assertCount(1, $post->versions);
+        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+
+        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
+
+        // version2
+        $post->update(['title' => 'version2']);
+        $post->refresh();
+
+        $this->assertCount(2, $post->versions);
+        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertSame('version1 content', $post->lastVersion->contents['content']);
     }
 
     /**

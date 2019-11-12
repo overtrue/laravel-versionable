@@ -108,6 +108,13 @@ $post->revertToVersion(3);
 $post->removeAllVersions();
 ```
 
+### Custom Version Store strategy
+
+You can set the following different version policies through property `protected $versionStrategy`:
+
+-  `Overtrue\LaravelVersionable::DIFF` - Version content will only contain changed attributes (Default Strategy).
+-  `Overtrue\LaravelVersionable::SNAPSHOT` - Version content will contain all versionable attributes values. 
+
 ## Contributing
 
 You can contribute in one of three ways:
