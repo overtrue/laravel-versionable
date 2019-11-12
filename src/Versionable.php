@@ -23,15 +23,24 @@ trait Versionable
     public static function bootVersionable()
     {
         static::saved(function (Model $model) {
-            if ($model->shouldVersioning()) {
-                Version::createForModel($model);
-                $model->removeOldVersions($model->getKeepVersionsCount());
-            }
+            self::createVersionForModel($model);
         });
 
         static::deleted(function (Model $model) {
-            $model->removeAllVersions();
+            if ($model->forceDeleting) {
+                $model->removeAllVersions();
+            } else {
+                self::createVersionForModel($model);
+            }
         });
+    }
+
+    private static function createVersionForModel(Model $model): void
+    {
+        if ($model->shouldVersioning()) {
+            Version::createForModel($model);
+            $model->removeOldVersions($model->getKeepVersionsCount());
+        }
     }
 
     /**
