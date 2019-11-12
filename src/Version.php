@@ -22,10 +22,24 @@ use SebastianBergmann\Diff\Differ;
  */
 class Version extends Model
 {
+    /**
+     * @var array
+     */
     protected $casts = [
         'contents' => 'array',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(\config('versionable.user_model'), \config('versionable.user_foreign_key'));
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function versionable()
     {
         return $this->morphTo('versionable');

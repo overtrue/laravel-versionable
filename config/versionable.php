@@ -24,4 +24,9 @@ return [
      * The model class for store versions.
      */
     'version_model' => \Overtrue\LaravelVersionable\Version::class,
+
+    /**
+     * The model class for user.
+     */
+    'user_model' => \App\User::class,
 ];
