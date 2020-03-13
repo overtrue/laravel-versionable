@@ -88,7 +88,7 @@ trait Versionable
             return;
         }
 
-        $this->versions()->skip($keep)->take($keep)->get()->each->delete();
+        $this->versions()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
     public function removeAllVersions()
