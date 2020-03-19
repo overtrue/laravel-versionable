@@ -108,6 +108,20 @@ $post->revertToVersion(3);
 $post->removeAllVersions();
 ```
 
+### Temporarily disable versioning
+
+```php
+// create
+Post::withoutVersion(function () use (&$post) {
+    Post::create(['title' => 'version1', 'content' => 'version1 content']);
+});
+
+// update
+Post::withoutVersion(function () use ($post) {
+    $post->update(['title' => 'updated']);
+});
+```
+
 ### Custom Version Store strategy
 
 You can set the following different version policies through property `protected $versionStrategy`:

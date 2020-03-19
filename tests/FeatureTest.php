@@ -130,4 +130,31 @@ class FeatureTest extends TestCase
 
         $this->assertCount(0, $post->versions);
     }
+
+
+    /**
+     * @test
+     */
+    public function user_can_disable_version_control()
+    {
+        $post = null;
+        Post::withoutVersion(function () use (&$post) {
+            $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        });
+
+        $this->assertCount(0, $post->versions);
+
+        // version2
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $post->refresh();
+        $this->assertCount(1, $post->versions);
+
+        Post::withoutVersion(function () use ($post) {
+            $post->update(['title' => 'version2']);
+        });
+        $post->refresh();
+
+        $this->assertCount(1, $post->versions);
+        $this->assertSame(['title' => 'version1', 'content' => 'version1 content'], $post->lastVersion->contents);
+    }
 }

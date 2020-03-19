@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait Versionable
 {
+    static protected $versioning = true;
+
     // You can add these properties to you versionable model
     //protected $versionable = [];
     //protected $dontVersionable = ['*'];
@@ -101,7 +103,7 @@ trait Versionable
      */
     public function shouldVersioning(): bool
     {
-        return !empty($this->getVersionableAttributes());
+        return self::$versioning && !empty($this->getVersionableAttributes());
     }
 
     /**
@@ -241,5 +243,17 @@ trait Versionable
         }
 
         return $attributes;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public static function withoutVersion(callable $callback)
+    {
+        self::$versioning = false;
+
+        \call_user_func($callback);
+
+        self::$versioning = true;
     }
 }
