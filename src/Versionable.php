@@ -39,7 +39,7 @@ trait Versionable
 
     private static function createVersionForModel(Model $model): void
     {
-        if ($model->shouldVersioning()) {
+        if (self::$versioning && $model->shouldVersioning()) {
             Version::createForModel($model);
             $model->removeOldVersions($model->getKeepVersionsCount());
         }
@@ -103,7 +103,7 @@ trait Versionable
      */
     public function shouldVersioning(): bool
     {
-        return self::$versioning && !empty($this->getVersionableAttributes());
+        return !empty($this->getVersionableAttributes());
     }
 
     /**
