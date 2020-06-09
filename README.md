@@ -64,6 +64,8 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
+    protected $versionTrans = ['title' => "标题", 'content' => "内容"];
+
     
     <...>
 }
@@ -82,6 +84,12 @@ Get all versions
 
 ```php
 $post->versions;
+```
+
+Get all versions and transform
+
+```php
+$post->versionsTrans();
 ```
 
 Get last version

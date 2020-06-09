@@ -256,4 +256,40 @@ trait Versionable
 
         self::$versioning = true;
     }
+    /**
+     * transform the contents by versionTrans
+     *
+     * @return array
+     */
+    public function versionsTrans()
+    {
+        $data = $this->versions;
+        $data->transform(function ($item, $key) {
+            $item['contents'] = $this->transformContent($item['contents']);
+            return $item;
+        });
+        return $data;
+    }
+    /**
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    public function transformContent($data)
+    {
+        $trans = $this->versionTrans;
+        if ($trans) {
+            $res = [];
+            foreach ($data as $key => $value) {
+                if (isset($trans[$key])) {
+                    $res[$trans[$key]] = $value;
+                } else {
+                    $res[$key] = $value;
+                }
+            }
+            return $res;
+        }
+        return $data;
+    }
 }
