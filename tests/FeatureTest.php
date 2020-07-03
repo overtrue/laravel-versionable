@@ -157,4 +157,91 @@ class FeatureTest extends TestCase
         $this->assertCount(1, $post->versions);
         $this->assertSame(['title' => 'version1', 'content' => 'version1 content'], $post->lastVersion->contents);
     }
+
+    /**
+     * @test
+     */
+    public function post_version_soft_delete_and_restore()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $this->assertCount(1, $post->versions);
+        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 1);
+
+        // version2
+        $post->update(['title' => 'version2']);
+        $post->refresh();
+
+        $this->assertCount(2, $post->versions);
+        $this->assertSame($post->only('title'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 2);
+
+        // version3
+        $post->update(['title' => 'version3']);
+        $post->refresh();
+        $this->assertDatabaseCount('versions', 3);
+
+
+        // soft delete
+        $post->refresh();
+        // first
+        $lastVersion = $post->lastVersion;
+        $post->removeVersion($lastVersion->id);
+        $this->assertDatabaseCount('versions', 3);
+        $this->assertCount(1, $post->getThrushedVersions());
+
+        // second delete
+        $post->refresh();
+        $lastVersion = $post->lastVersion;
+        $post->removeVersion($lastVersion->id);
+        $this->assertDatabaseCount('versions', 3);
+        $this->assertCount(1, $post->refresh()->versions);
+        $this->assertCount(2, $post->getThrushedVersions());
+
+        // restore second deleted version
+        $post->restoreThrushedVersion($lastVersion->id);
+        $this->assertCount(2, $post->refresh()->versions);
+    }
+
+    /**
+     * @test
+     */
+    public function post_version_forced_delete()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $this->assertCount(1, $post->versions);
+        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 1);
+
+        // version2
+        $post->update(['title' => 'version2']);
+        $post->refresh();
+
+        $this->assertCount(2, $post->versions);
+        $this->assertSame($post->only('title'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 2);
+
+        // version3
+        $post->update(['title' => 'version3']);
+        $post->refresh();
+        $this->assertDatabaseCount('versions', 3);
+
+
+        // forced delete
+        $post->forceDeleteEnable();
+
+        // first
+        $post->refresh();
+        $lastVersion = $post->lastVersion;
+        $post->removeVersion($lastVersion->id);
+        $this->assertDatabaseCount('versions', 2);
+
+        // second delete
+        $post->refresh();
+        $lastVersion = $post->lastVersion;
+        $post->removeVersion($lastVersion->id);
+        $this->assertDatabaseCount('versions', 1);
+    }
 }

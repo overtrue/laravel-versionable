@@ -15,6 +15,12 @@
 
 It's a minimalist way to make your model support version history, and it's very simple to roll back to the specified version.
 
+
+## Requirement
+
+ 1. PHP >= 7.4
+ 2. laravel/framework >= 5.8|6.0|7.0
+
 ## Features
 - Keep the specified number of versions.
 - Whitelist and blacklist for versionable attributes.
@@ -64,6 +70,13 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
+
+    /**
+     * Version is a soft delete enable model.
+     * Set this attributes will enable all remove method.
+     * default value is false.
+     */
+    protected $forceEnable = false;
     
     <...>
 }
@@ -74,6 +87,15 @@ Versions will be created on vensionable model saved.
 ```php
 $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 $post->update(['title' => 'version2']);
+```
+### Set version delete strategy
+```php
+$post->forceDeleteEnable();
+$post->forceDeleteDisable();
+
+// or set object attribute who has used Versionable trite
+$post->forceEnable = true;
+$post->forceEnable = false;
 ```
 
 ### Get versions
@@ -102,11 +124,27 @@ $post->getVersion(3)->revert();
 $post->revertToVersion(3);
 ```
 
-### Remove All versions
+### Remove versions
+This will be soft deleted or forced deleted according to your configuration in the model.
 
 ```php
+$post->removeVersion($versionId = 1);
+$post->removeVersions($versionIds = [1, 2, 3]);
 $post->removeAllVersions();
+
+$post->forceRemoveVersion($versionId = 1);
+$post->forceRemoveVersions($versionIds = [1, 2, 3]);
+$post->forceRemoveAllVersions();
+
+// Configuration deletion method
+$post->forceDeleteEnable()->removeVersion($versionId);
+$post->forceDeleteDisable()->removeVersion($versionId);
 ```
+### Restore deleted version by id
+```php
+$post->restoreThrushedVersion($id);
+```
+
 
 ### Temporarily disable versioning
 

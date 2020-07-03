@@ -11,6 +11,7 @@
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use SebastianBergmann\Diff\Differ;
 
@@ -22,6 +23,7 @@ use SebastianBergmann\Diff\Differ;
  */
 class Version extends Model
 {
+    use SoftDeletes;
     /**
      * @var array
      */
