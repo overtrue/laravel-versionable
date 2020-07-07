@@ -189,7 +189,7 @@ class FeatureTest extends TestCase
         $lastVersion = $post->lastVersion;
         $post->removeVersion($lastVersion->id);
         $this->assertDatabaseCount('versions', 3);
-        $this->assertCount(1, $post->getThrushedVersions());
+        $this->assertCount(1, $post->getThrashedVersions());
 
         // second delete
         $post->refresh();
@@ -197,10 +197,10 @@ class FeatureTest extends TestCase
         $post->removeVersion($lastVersion->id);
         $this->assertDatabaseCount('versions', 3);
         $this->assertCount(1, $post->refresh()->versions);
-        $this->assertCount(2, $post->getThrushedVersions());
+        $this->assertCount(2, $post->getThrashedVersions());
 
         // restore second deleted version
-        $post->restoreThrushedVersion($lastVersion->id);
+        $post->restoreThrashedVersion($lastVersion->id);
         $this->assertCount(2, $post->refresh()->versions);
     }
 

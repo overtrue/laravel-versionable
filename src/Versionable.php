@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 trait Versionable
 {
     static protected $versioning = true;
-    protected bool $forceEnable = false;
+    protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
     //protected $versionable = [];
@@ -64,14 +64,14 @@ trait Versionable
 
     public function forceDeleteEnable(): self
     {
-        $this->forceEnable = true;
+        $this->forceDeleteVersion = true;
 
         return $this;
     }
 
     public function forceDeleteDisable(): self
     {
-        $this->forceEnable = false;
+        $this->forceDeleteVersion = false;
 
         return $this;
     }
@@ -85,12 +85,12 @@ trait Versionable
         return $this->versions()->find($id);
     }
 
-    public function getThrushedVersions()
+    public function getThrashedVersions()
     {
         return $this->versions()->onlyTrashed()->get();
     }
 
-    public function restoreThrushedVersion(int $id)
+    public function restoreThrashedVersion(int $id)
     {
         return $this->versions()->onlyTrashed()->whereId($id)->restore();
     }
@@ -119,7 +119,7 @@ trait Versionable
 
     public function removeVersions(array $ids)
     {
-        if ($this->forceEnable) {
+        if ($this->forceDeleteVersion) {
             return $this->forceRemoveVersions($ids);
         }
 
@@ -128,7 +128,7 @@ trait Versionable
 
     public function removeVersion(int $id)
     {
-        if ($this->forceEnable) {
+        if ($this->forceDeleteVersion) {
             return $this->forceRemoveVersion($id);
         }
 
@@ -137,7 +137,7 @@ trait Versionable
 
     public function removeAllVersions()
     {
-        if ($this->forceEnable) {
+        if ($this->forceDeleteVersion) {
             $this->forceRemoveAllVersions();
         }
 
