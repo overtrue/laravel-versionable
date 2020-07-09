@@ -62,19 +62,6 @@ trait Versionable
         return $this->morphOne(\config('versionable.version_model'), 'versionable')->latest('id');
     }
 
-    public function forceDeleteEnable(): self
-    {
-        $this->forceDeleteVersion = true;
-
-        return $this;
-    }
-
-    public function forceDeleteDisable(): self
-    {
-        $this->forceDeleteVersion = false;
-
-        return $this;
-    }
     /**
      * @param int $id
      *
