@@ -15,6 +15,6 @@ namespace Overtrue\LaravelVersionable;
  */
 class VersionStrategy
 {
-    const DIFF = 'diff';
-    const SNAPSHOT = 'snapshot';
+    public const DIFF = 'diff';
+    public const SNAPSHOT = 'snapshot';
 }

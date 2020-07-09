@@ -31,7 +31,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/versionable.php', 'versionable'
+            __DIR__.'/../config/versionable.php',
+            'versionable'
         );
     }
 }

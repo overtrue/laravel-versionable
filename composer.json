@@ -8,7 +8,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^8.1|^9.0",
-        "orchestra/testbench": "^5.3"
+        "orchestra/testbench": "^5.3",
+        "friendsofphp/php-cs-fixer": "^2.16"
     },
     "autoload": {
         "psr-4": {
@@ -26,6 +27,16 @@
                 "Overtrue\\LaravelVersionable\\ServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "check-style": "php-cs-fixer fix --using-cache=no --diff --config=.php_cs --dry-run --ansi",
+        "fix-style": "php-cs-fixer fix --using-cache=no --config=.php_cs --ansi",
+        "test": "vendor/bin/phpunit --colors=always --testdox"
+    },
+    "scripts-descriptions": {
+        "test": "Run all tests.",
+        "check-style": "Run style checks (only dry run - no fixing!).",
+        "fix-style": "Run style checks and fix violations."
     },
     "license": "MIT"
 }
