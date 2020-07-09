@@ -3,7 +3,7 @@
 <p align="center"> ⏱️ Make Laravel model versionable.</p>
 
 <p align="center">
-<a href="https://travis-ci.org/overtrue/laravel-versionable"><img src="https://travis-ci.org/overtrue/laravel-versionable.svg?branch=master" alt="Build Status"></a>
+<a href="https://github.com/overtrue/laravel-versionable/actions"><img src="https://github.com/overtrue/laravel-versionable/workflows/CI/badge.svg" alt="Build Status"></a>
 <a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/v/stable.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/v/unstable.svg" alt="Latest Unstable Version"></a>
 <a href="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master"><img src="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a>
