@@ -230,7 +230,7 @@ class FeatureTest extends TestCase
 
 
         // forced delete
-        $post->forceDeleteEnable();
+        $post->enableForceDeleteVersion();
 
         // first
         $post->refresh();

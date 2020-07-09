@@ -35,4 +35,14 @@ class Post extends Model
             $post->user_id = \auth()->id();
         });
     }
+
+    public function enableForceDeleteVersion()
+    {
+        $this->forceDeleteVersion = true;
+    }
+
+    public function disableForceDeleteVersion()
+    {
+        $this->forceDeleteVersion = false;
+    }
 }
