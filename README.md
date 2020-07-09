@@ -72,11 +72,9 @@ class Post extends Model
     protected $versionable = ['title', 'content'];
 
     /**
-     * Version is a soft delete enable model.
-     * Set this attributes will enable all remove method.
-     * default value is false.
+     * @var bool
      */
-    protected $forceEnable = false;
+    protected $forceDeleteVersion = true;
     
     <...>
 }
@@ -87,15 +85,6 @@ Versions will be created on vensionable model saved.
 ```php
 $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 $post->update(['title' => 'version2']);
-```
-### Set version delete strategy
-```php
-$post->forceDeleteEnable();
-$post->forceDeleteDisable();
-
-// or set object attribute who has used Versionable trite
-$post->forceEnable = true;
-$post->forceEnable = false;
 ```
 
 ### Get versions
@@ -125,24 +114,23 @@ $post->revertToVersion(3);
 ```
 
 ### Remove versions
-This will be soft deleted or forced deleted according to your configuration in the model.
 
 ```php
+// soft delete
 $post->removeVersion($versionId = 1);
 $post->removeVersions($versionIds = [1, 2, 3]);
 $post->removeAllVersions();
 
+// force delete
 $post->forceRemoveVersion($versionId = 1);
 $post->forceRemoveVersions($versionIds = [1, 2, 3]);
 $post->forceRemoveAllVersions();
-
-// Configuration deletion method
-$post->forceDeleteEnable()->removeVersion($versionId);
-$post->forceDeleteDisable()->removeVersion($versionId);
 ```
+
 ### Restore deleted version by id
+
 ```php
-$post->restoreThrushedVersion($id);
+$post->restoreThrashedVersion($id);
 ```
 
 
