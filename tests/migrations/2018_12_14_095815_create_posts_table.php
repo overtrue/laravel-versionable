@@ -23,6 +23,7 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('title');
             $table->string('content');
+            $table->json('extends')->nullable();
             $table->timestamps();
         });
     }

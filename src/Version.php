@@ -73,7 +73,7 @@ class Version extends Model
      */
     public function revert()
     {
-        return $this->versionable->forceFill($this->contents)->save();
+        return $this->versionable->fill($this->contents)->save();
     }
 
     /**

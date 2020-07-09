@@ -74,8 +74,8 @@ class FeatureTest extends TestCase
     public function post_can_revert_to_target_version()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
-        $post->update(['title' => 'version2']);
-        $post->update(['title' => 'version3', 'content' => 'version3 content']);
+        $post->update(['title' => 'version2', 'extends' => ['foo' => 'bar']]);
+        $post->update(['title' => 'version3', 'content' => 'version3 content', 'extends' => ['name' => 'overtrue']]);
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
 
         // revert version 2
@@ -85,6 +85,7 @@ class FeatureTest extends TestCase
         // only title updated
         $this->assertSame('version2', $post->title);
         $this->assertSame('version4 content', $post->content);
+        $this->assertSame(['foo' => 'bar'], $post->extends);
 
         // revert version 3
         $post->revertToVersion(3);

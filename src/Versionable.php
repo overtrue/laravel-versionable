@@ -165,15 +165,10 @@ trait Versionable
             return [];
         }
 
-        switch ($this->getVersionStrategy()) {
-            case VersionStrategy::DIFF:
-                $contents = $changes;
-                break;
-            case VersionStrategy::SNAPSHOT:
-                $contents = $this->attributesToArray();
-                break;
-            default:
-                $contents = $changes;
+        $contents = $this->attributesToArray();
+
+        if ($this->getVersionStrategy() == VersionStrategy::DIFF) {
+            $contents = $this->only(\array_keys($changes));
         }
 
         return $this->versionableFromArray($contents);

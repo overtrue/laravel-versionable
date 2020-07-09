@@ -21,11 +21,15 @@ class Post extends Model
 {
     use Versionable;
 
-    protected $fillable = ['title', 'content', 'user_id'];
+    protected $fillable = ['title', 'content', 'user_id', 'extends'];
 
-    protected $versionable = ['title', 'content'];
+    protected $versionable = ['title', 'content', 'extends'];
 
     protected $versionStrategy = VersionStrategy::DIFF;
+
+    protected $casts = [
+        'extends' => 'array',
+    ];
 
     protected static function boot()
     {
