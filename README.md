@@ -70,11 +70,6 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
-
-    /**
-     * @var bool
-     */
-    protected $forceDeleteVersion = true;
     
     <...>
 }
