@@ -15,6 +15,12 @@
 
 It's a minimalist way to make your model support version history, and it's very simple to roll back to the specified version.
 
+
+## Requirement
+
+ 1. PHP >= 7.4
+ 2. laravel/framework >= 5.8|6.0|7.0
+
 ## Features
 - Keep the specified number of versions.
 - Whitelist and blacklist for versionable attributes.
@@ -64,6 +70,11 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
+
+    /**
+     * @var bool
+     */
+    protected $forceDeleteVersion = true;
     
     <...>
 }
@@ -102,11 +113,26 @@ $post->getVersion(3)->revert();
 $post->revertToVersion(3);
 ```
 
-### Remove All versions
+### Remove versions
 
 ```php
+// soft delete
+$post->removeVersion($versionId = 1);
+$post->removeVersions($versionIds = [1, 2, 3]);
 $post->removeAllVersions();
+
+// force delete
+$post->forceRemoveVersion($versionId = 1);
+$post->forceRemoveVersions($versionIds = [1, 2, 3]);
+$post->forceRemoveAllVersions();
 ```
+
+### Restore deleted version by id
+
+```php
+$post->restoreThrashedVersion($id);
+```
+
 
 ### Temporarily disable versioning
 

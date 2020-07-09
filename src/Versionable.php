@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 trait Versionable
 {
     static protected $versioning = true;
+    protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
     //protected $versionable = [];
@@ -30,7 +31,7 @@ trait Versionable
 
         static::deleted(function (Model $model) {
             if ($model->forceDeleting) {
-                $model->removeAllVersions();
+                $model->forceRemoveAllVersions();
             } else {
                 self::createVersionForModel($model);
             }
@@ -66,9 +67,19 @@ trait Versionable
      *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function getVersion($id)
+    public function getVersion(int $id)
     {
         return $this->versions()->find($id);
+    }
+
+    public function getThrashedVersions()
+    {
+        return $this->versions()->onlyTrashed()->get();
+    }
+
+    public function restoreThrashedVersion(int $id)
+    {
+        return $this->versions()->onlyTrashed()->whereId($id)->restore();
     }
 
     /**
@@ -76,7 +87,7 @@ trait Versionable
      *
      * @return mixed
      */
-    public function revertToVersion($id)
+    public function revertToVersion(int $id)
     {
         return $this->versions()->findOrFail($id)->revert();
     }
@@ -93,9 +104,46 @@ trait Versionable
         $this->versions()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
+    public function removeVersions(array $ids)
+    {
+        if ($this->forceDeleteVersion) {
+            return $this->forceRemoveVersions($ids);
+        }
+
+        return $this->versions()->find($ids)->each->delete();
+    }
+
+    public function removeVersion(int $id)
+    {
+        if ($this->forceDeleteVersion) {
+            return $this->forceRemoveVersion($id);
+        }
+
+        return $this->versions()->findOrFail($id)->delete();
+    }
+
     public function removeAllVersions()
     {
+        if ($this->forceDeleteVersion) {
+            $this->forceRemoveAllVersions();
+        }
+
         $this->versions->each->delete();
+    }
+
+    public function forceRemoveVersion(int $id)
+    {
+        return $this->versions()->findOrFail($id)->forceDelete();
+    }
+
+    public function forceRemoveVersions(array $ids)
+    {
+        return $this->versions()->find($ids)->each->forceDelete();
+    }
+
+    public function forceRemoveAllVersions()
+    {
+        $this->versions->each->forceDelete();
     }
 
     /**
