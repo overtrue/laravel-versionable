@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait Versionable
 {
-    static protected $versioning = true;
+    protected static bool $versioning = true;
     protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
