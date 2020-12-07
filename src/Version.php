@@ -36,7 +36,7 @@ class Version extends Model
      */
     public function user()
     {
-        return $this->belongsTo(\config('versionable.user_model'), \config('versionable.user_foreign_key'));
+        return $this->belongsTo(\config('versionable.user_model'), \config('versionable.user_foreign_key'))->withTrashed();
     }
 
     /**
