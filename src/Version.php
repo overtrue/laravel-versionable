@@ -48,11 +48,12 @@ class Version extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  array  $attributes
      *
      * @return \Overtrue\LaravelVersionable\Version
      */
-    public static function createForModel(Model $model)
+    public static function createForModel(Model $model, array $attributes = [])
     {
         $versionClass = $model->getVersionModel();
 
@@ -61,7 +62,7 @@ class Version extends Model
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
         $version->{\config('versionable.user_foreign_key')} = \auth()->id();
-        $version->contents = $model->getVersionableAttributes();
+        $version->contents = \array_merge($attributes, $model->getVersionableAttributes());
 
         $version->save();
 
