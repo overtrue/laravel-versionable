@@ -23,6 +23,8 @@ class FeatureTest extends TestCase
     {
         parent::setUp();
 
+        Post::enableVersioning();
+
         config(['auth.providers.users.model' => User::class]);
 
         $this->user = User::create(['name' => 'overtrue']);
@@ -150,13 +152,25 @@ class FeatureTest extends TestCase
         $post->refresh();
         $this->assertCount(1, $post->versions);
 
+        $this->assertTrue(Post::getVersioning());
+
         Post::withoutVersion(function () use ($post) {
             $post->update(['title' => 'version2']);
         });
+
+        $this->assertTrue(Post::getVersioning());
         $post->refresh();
 
         $this->assertCount(1, $post->versions);
         $this->assertSame(['title' => 'version1', 'content' => 'version1 content'], $post->lastVersion->contents);
+
+        Post::disableVersioning();
+        Post::withoutVersion(function () use ($post) {
+            $post->update(['title' => 'version2']);
+        });
+
+        $this->assertFalse(Post::getVersioning());
+        $post->refresh();
     }
 
     /**

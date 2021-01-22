@@ -26,21 +26,21 @@ trait Versionable
     public static function bootVersionable()
     {
         static::saved(function (Model $model) {
-            self::createVersionForModel($model);
+            static::createVersionForModel($model);
         });
 
         static::deleted(function (Model $model) {
             if ($model->forceDeleting) {
                 $model->forceRemoveAllVersions();
             } else {
-                self::createVersionForModel($model);
+                static::createVersionForModel($model);
             }
         });
     }
 
     private static function createVersionForModel(Model $model): void
     {
-        if (self::$versioning && $model->shouldVersioning()) {
+        if (static::$versioning && $model->shouldVersioning()) {
             Version::createForModel($model);
             $model->removeOldVersions($model->getKeepVersionsCount());
         }
@@ -288,15 +288,32 @@ trait Versionable
         return $attributes;
     }
 
+    public static function getVersioning()
+    {
+        return static::$versioning;
+    }
+
     /**
      * @param callable $callback
      */
     public static function withoutVersion(callable $callback)
     {
-        self::$versioning = false;
+        $lastState = static::$versioning;
+
+        static::disableVersioning();
 
         \call_user_func($callback);
 
-        self::$versioning = true;
+        static::$versioning = $lastState;
+    }
+
+    public static function disableVersioning()
+    {
+        static::$versioning = false;
+    }
+
+    public static function enableVersioning()
+    {
+        static::$versioning = true;
     }
 }
