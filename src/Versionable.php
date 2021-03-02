@@ -77,7 +77,7 @@ trait Versionable
         return $this->versions()->onlyTrashed()->get();
     }
 
-    public function restoreThrashedVersion(int $id)
+    public function restoreTrashedVersion(int $id)
     {
         return $this->versions()->onlyTrashed()->whereId($id)->restore();
     }
