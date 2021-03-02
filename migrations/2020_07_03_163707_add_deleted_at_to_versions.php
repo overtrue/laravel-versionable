@@ -26,7 +26,7 @@ class AddDeletedAtToVersions extends Migration
     public function down()
     {
         Schema::table('versions', function (Blueprint $table) {
-            //
+            $table->dropSoftDeletes();
         });
     }
 }
