@@ -125,7 +125,7 @@ $post->forceRemoveAllVersions();
 ### Restore deleted version by id
 
 ```php
-$post->restoreThrashedVersion($id);
+$post->restoreTrashedVersion($id);
 ```
 
 
