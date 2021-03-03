@@ -49,4 +49,9 @@ class Post extends Model
     {
         $this->forceDeleteVersion = false;
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

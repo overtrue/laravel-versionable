@@ -25,7 +25,10 @@ class FeatureTest extends TestCase
 
         Post::enableVersioning();
 
-        config(['auth.providers.users.model' => User::class]);
+        config([
+            'auth.providers.users.model' => User::class,
+            'versionable.user_model' => User::class,
+       ]);
 
         $this->user = User::create(['name' => 'overtrue']);
         $this->actingAs($this->user);
@@ -215,7 +218,7 @@ class FeatureTest extends TestCase
         $this->assertCount(2, $post->getThrashedVersions());
 
         // restore second deleted version
-        $post->restoreThrashedVersion($lastVersion->id);
+        $post->restoreTrashedVersion($lastVersion->id);
         $this->assertCount(2, $post->refresh()->versions);
     }
 
@@ -258,5 +261,24 @@ class FeatureTest extends TestCase
         $lastVersion = $post->lastVersion;
         $post->removeVersion($lastVersion->id);
         $this->assertDatabaseCount('versions', 1);
+    }
+
+    /**
+     * @test
+     */
+    public function relations_will_not_in_version_contents()
+    {
+        $post = null;
+        Post::withoutVersion(function () use (&$post) {
+            $user = User::create(['name' => 'overtrue']);
+            $post = Post::create(['title' => 'version1', 'content' => 'version1 content', 'user_id' => $user->id]);
+        });
+
+        $post->user;
+        $this->assertArrayHasKey('user', $post->toArray());
+
+        $post->update(['title' => 'version2']);
+
+        $this->assertArrayNotHasKey('user', $post->latestVersion->contents);
     }
 }

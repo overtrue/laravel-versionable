@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 trait Versionable
 {
     protected static bool $versioning = true;
+
     protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
@@ -25,17 +26,21 @@ trait Versionable
 
     public static function bootVersionable()
     {
-        static::saved(function (Model $model) {
-            static::createVersionForModel($model);
-        });
-
-        static::deleted(function (Model $model) {
-            if ($model->forceDeleting) {
-                $model->forceRemoveAllVersions();
-            } else {
+        static::saved(
+            function (Model $model) {
                 static::createVersionForModel($model);
             }
-        });
+        );
+
+        static::deleted(
+            function (Model $model) {
+                if ($model->forceDeleting) {
+                    $model->forceRemoveAllVersions();
+                } else {
+                    static::createVersionForModel($model);
+                }
+            }
+        );
     }
 
     private static function createVersionForModel(Model $model): void
@@ -59,11 +64,19 @@ trait Versionable
      */
     public function lastVersion(): MorphOne
     {
+        return $this->latestVersion();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function latestVersion(): MorphOne
+    {
         return $this->morphOne(\config('versionable.version_model'), 'versionable')->latest('id');
     }
 
     /**
-     * @param int $id
+     * @param  int  $id
      *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
@@ -83,7 +96,7 @@ trait Versionable
     }
 
     /**
-     * @param int $id
+     * @param  int  $id
      *
      * @return mixed
      */
@@ -93,7 +106,7 @@ trait Versionable
     }
 
     /**
-     * @param int $keep
+     * @param  int  $keep
      */
     public function removeOldVersions(int $keep): void
     {
@@ -175,7 +188,7 @@ trait Versionable
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      *
      * @return $this
      *
@@ -193,7 +206,7 @@ trait Versionable
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      *
      * @return $this
      *
@@ -235,7 +248,7 @@ trait Versionable
     }
 
     /**
-     * @param string $strategy
+     * @param  string  $strategy
      *
      * @return $this
      *
@@ -271,7 +284,7 @@ trait Versionable
     /**
      * Get the versionable attributes of a given array.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      *
      * @return array
      */
@@ -294,7 +307,7 @@ trait Versionable
     }
 
     /**
-     * @param callable $callback
+     * @param  callable  $callback
      */
     public static function withoutVersion(callable $callback)
     {

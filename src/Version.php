@@ -24,6 +24,7 @@ use SebastianBergmann\Diff\Differ;
 class Version extends Model
 {
     use SoftDeletes;
+
     /**
      * @var array
      */
@@ -36,7 +37,15 @@ class Version extends Model
      */
     public function user()
     {
-        return $this->belongsTo(\config('versionable.user_model'), \config('versionable.user_foreign_key'))->withTrashed();
+        $useSoftDeletes = \in_array(SoftDeletes::class, \class_uses(\config('versionable.user_model')));
+
+        return \tap(
+            $this->belongsTo(
+                \config('versionable.user_model'),
+                \config('versionable.user_foreign_key')
+            ),
+            fn ($relation) => $useSoftDeletes ? $relation->withTrashed() : $relation
+        );
     }
 
     /**
@@ -49,7 +58,7 @@ class Version extends Model
 
     /**
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $attributes
+     * @param  array                                $attributes
      *
      * @return \Overtrue\LaravelVersionable\Version
      */
@@ -78,7 +87,7 @@ class Version extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Model|null $model
+     * @param  \Illuminate\Database\Eloquent\Model|null  $model
      *
      * @return string
      */
