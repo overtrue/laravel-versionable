@@ -90,9 +90,11 @@ Get all versions
 $post->versions;
 ```
 
-Get last version
+Get latest version
 
 ```php
+$post->latestVersion;
+// or
 $post->lastVersion;
 ```
 
