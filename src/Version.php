@@ -85,6 +85,14 @@ class Version extends Model
     {
         return $this->versionable->fill($this->contents)->save();
     }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Model|null  $model
+     */
+    public function revertWithoutSaving()
+    {
+        return $this->versionable->fill($this->contents);  
+    }
 
     /**
      * @param  \Illuminate\Database\Eloquent\Model|null  $model
