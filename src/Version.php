@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the overtrue/laravel-versionable.
- *
- * (c) overtrue <i@overtrue.me>
- *
- * This source file is subject to the MIT license that is bundled.
- */
-
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
@@ -16,8 +8,6 @@ use Illuminate\Support\Arr;
 use SebastianBergmann\Diff\Differ;
 
 /**
- * Class Version.
- *
  * @property Model $versionable
  * @property array $contents
  */
@@ -51,7 +41,7 @@ class Version extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function versionable()
+    public function versionable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo('versionable');
     }
@@ -62,8 +52,9 @@ class Version extends Model
      *
      * @return \Overtrue\LaravelVersionable\Version
      */
-    public static function createForModel(Model $model, array $attributes = [])
+    public static function createForModel(Model $model, array $attributes = []): Version
     {
+        /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         $versionClass = $model->getVersionModel();
 
         $version = new $versionClass();
@@ -85,13 +76,13 @@ class Version extends Model
     {
         return $this->versionable->fill($this->contents)->save();
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Model|null  $model
      */
-    public function revertWithoutSaving()
+    public function revertWithoutSaving(): ?Model
     {
-        return $this->versionable->fill($this->contents);  
+        return $this->versionable->fill($this->contents);
     }
 
     /**
@@ -99,8 +90,9 @@ class Version extends Model
      *
      * @return string
      */
-    public function diff(Model $model = null)
+    public function diff(Model $model = null): string
     {
+        /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         $model || $model = $this->versionable;
 
         if ($model instanceof Version) {

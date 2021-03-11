@@ -1,22 +1,11 @@
 <?php
 
-/*
- * This file is part of the overtrue/laravel-versionable.
- *
- * (c) overtrue <i@overtrue.me>
- *
- * This source file is subject to the MIT license that is bundled.
- */
-
 namespace Tests;
 
 use Illuminate\Database\Eloquent\Model;
 use Overtrue\LaravelVersionable\Versionable;
 use Overtrue\LaravelVersionable\VersionStrategy;
 
-/**
- * Class Post.
- */
 class Post extends Model
 {
     use Versionable;

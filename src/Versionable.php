@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the overtrue/laravel-versionable.
- *
- * (c) overtrue <i@overtrue.me>
- *
- * This source file is subject to the MIT license that is bundled.
- */
-
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +26,7 @@ trait Versionable
 
         static::deleted(
             function (Model $model) {
+                /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
                 if ($model->forceDeleting) {
                     $model->forceRemoveAllVersions();
                 } else {
@@ -45,6 +38,7 @@ trait Versionable
 
     private static function createVersionForModel(Model $model): void
     {
+        /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         if (static::$versioning && $model->shouldVersioning()) {
             Version::createForModel($model);
             $model->removeOldVersions($model->getKeepVersionsCount());

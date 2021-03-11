@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the overtrue/laravel-versionable.
- *
- * (c) overtrue <i@overtrue.me>
- *
- * This source file is subject to the MIT license that is bundled.
- */
-
 return [
     /*
      * Keep versions, you can redefine in target model.
