@@ -109,7 +109,7 @@ $post->getVersion(3)->revert();
 
 $post->revertToVersion(3);
 ```
-#### Reversion without Save
+#### Reversion without saving
 
 ```php
 $newPost = $post->revertWithoutSaving()
