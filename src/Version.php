@@ -23,7 +23,7 @@ class Version extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|null
      */
     public function user()
     {
