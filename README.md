@@ -47,6 +47,8 @@ And if you want to custom the migration of the versions table, you can publish t
 $ php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=migrations
 ```
 
+> After you published the migration files, please update `'migrations' => false` in the config file `config/versionable.php` to disable load the package migrations. 
+
 Then run this command to create a database migration:
 
 ```bash

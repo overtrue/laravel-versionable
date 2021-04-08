@@ -1,6 +1,12 @@
 <?php
 
 return [
+    /**
+     * Load migrations from package migrations,
+     * if You published the migration files, please set to `false`.
+     */
+    'migrations' => true,
+
     /*
      * Keep versions, you can redefine in target model.
      * Default: 0 - Keep all versions.
