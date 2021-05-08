@@ -22,6 +22,7 @@ jobs:
     strategy:
       matrix:
         php_version: [7.4]
+        dependency_version: ['highest', 'lowest']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -31,6 +32,8 @@ jobs:
         php-version: ${{ matrix.php_version }}
         coverage: xdebug
     - name: Install dependencies
-      run: composer install
+      uses: ramsey/composer-install@v1
+      with:
+        dependency-versions: ${{ matrix.dependency_version }}
     - name: PHPUnit check
       run: ./vendor/bin/phpunit --coverage-text
