@@ -32,8 +32,8 @@ jobs:
         php-version: ${{ matrix.php_version }}
         coverage: xdebug
     - name: Install dependencies
-      uses: "ramsey/composer-install@v1"
-        with:
-          dependency-versions: ${{ matrix.dependency_version }}
+      uses: ramsey/composer-install@v1
+      with:
+        dependency-versions: ${{ matrix.dependency_version }}
     - name: PHPUnit check
       run: ./vendor/bin/phpunit --coverage-text
