@@ -3,7 +3,7 @@
     "description": "Make Laravel model versionable.",
     "require": {
         "php": "^7.4|^8.0",
-        "laravel/framework": "^5.8|^6.20.14|^7.0|^8.0",
+        "laravel/framework": "^5.8|^6.20.26|^7.0|^8.0",
         "sebastian/diff": "^3.0|^4.0",
         "doctrine/dbal": "^2.12|^3.0"
     },
@@ -11,6 +11,7 @@
         "phpunit/phpunit": "^8.1|^9.0",
         "orchestra/testbench": "^5.3|^6.0",
         "friendsofphp/php-cs-fixer": "^2.16",
+        "brainmaestro/composer-git-hooks": "^2.8",
         "mockery/mockery": "^1.4"
     },
     "autoload": {
@@ -28,12 +29,33 @@
             "providers": [
                 "Overtrue\\LaravelVersionable\\ServiceProvider"
             ]
+        },
+        "hooks": {
+            "pre-commit": [
+                "composer check-style",
+                "composer test"
+            ],
+            "pre-push": [
+                "composer test"
+            ]
         }
     },
     "scripts": {
-        "check-style": "php-cs-fixer fix --using-cache=no --diff --config=.php_cs --dry-run --ansi",
-        "fix-style": "php-cs-fixer fix --using-cache=no --config=.php_cs --ansi",
-        "test": "vendor/bin/phpunit --colors=always --testdox"
+        "post-update-cmd": [
+            "cghooks remove",
+            "cghooks add --ignore-lock",
+            "cghooks update"
+        ],
+        "post-merge": "composer install",
+        "post-install-cmd": [
+            "cghooks remove",
+            "cghooks add --ignore-lock",
+            "cghooks update"
+        ],
+        "cghooks": "vendor/bin/cghooks",
+        "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
+        "fix-style": "php-cs-fixer fix --using-cache=no --ansi",
+        "test": "phpunit --colors"
     },
     "scripts-descriptions": {
         "test": "Run all tests.",
