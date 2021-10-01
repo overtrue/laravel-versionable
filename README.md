@@ -114,7 +114,9 @@ $post->revertToVersion(3);
 #### Reversion without saving
 
 ```php
-$newPost = $post->revertWithoutSaving()
+$version = $post->versions()->first(); 
+
+$post = $version->revertWithoutSaving();
 ```
 
 ### Remove versions
