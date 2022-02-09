@@ -2,8 +2,8 @@
     "name": "overtrue/laravel-versionable",
     "description": "Make Laravel model versionable.",
     "require": {
-        "php": "^7.4|^8.0",
-        "laravel/framework": "^5.8|^6.20.26|^7.0|^8.0",
+        "php": "^8.0",
+        "laravel/framework": "^9.0",
         "sebastian/diff": "^3.0|^4.0",
         "doctrine/dbal": "^2.12|^3.0"
     },
