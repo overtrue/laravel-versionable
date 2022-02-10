@@ -2,16 +2,15 @@
     "name": "overtrue/laravel-versionable",
     "description": "Make Laravel model versionable.",
     "require": {
-        "php": "^8.0",
+        "php": "^8.0.2",
         "laravel/framework": "^9.0",
-        "sebastian/diff": "^3.0|^4.0",
-        "doctrine/dbal": "^2.12|^3.0"
+        "sebastian/diff": "^4.0",
+        "doctrine/dbal": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.1|^9.0",
-        "orchestra/testbench": "^5.3|^6.0",
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "brainmaestro/composer-git-hooks": "^2.8",
+        "phpunit/phpunit": "^9.0",
+        "orchestra/testbench": "^7.0",
+        "friendsofphp/php-cs-fixer": "^3.6",
         "mockery/mockery": "^1.4"
     },
     "autoload": {
@@ -62,5 +61,10 @@
         "check-style": "Run style checks (only dry run - no fixing!).",
         "fix-style": "Run style checks and fix violations."
     },
-    "license": "MIT"
+    "license": "MIT",
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
+    }
 }

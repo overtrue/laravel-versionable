@@ -12,49 +12,47 @@
 <a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/license" alt="License"></a>
 </p>
 
-
 It's a minimalist way to make your model support version history, and it's very simple to roll back to the specified version.
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me-button-s.svg?raw=true)](https://github.com/sponsors/overtrue)
 
-
 ## Requirement
 
- 1. PHP >= 7.4
- 2. laravel/framework >= 5.8|6.0|7.0
+1. PHP >= 8.0.2
+2. laravel/framework >= 9.0
 
 ## Features
-- Keep the specified number of versions.
-- Whitelist and blacklist for versionable attributes.
-- Easily roll back to the specified version.
-- Record only changed attributes.
-- Easy to customize.
 
+-   Keep the specified number of versions.
+-   Whitelist and blacklist for versionable attributes.
+-   Easily roll back to the specified version.
+-   Record only changed attributes.
+-   Easy to customize.
 
 ## Installing
 
 ```shell
-$ composer require overtrue/laravel-versionable -vvv
+composer require overtrue/laravel-versionable -vvv
 ```
 
 Optional, you can publish the config file:
 
 ```bash
-$ php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=config
+php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=config
 ```
 
 And if you want to custom the migration of the versions table, you can publish the migration file to your database path:
 
 ```bash
-$ php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=migrations
+php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=migrations
 ```
 
-> After you published the migration files, please update `'migrations' => false` in the config file `config/versionable.php` to disable load the package migrations. 
+> After you published the migration files, please update `'migrations' => false` in the config file `config/versionable.php` to disable load the package migrations.
 
 Then run this command to create a database migration:
 
 ```bash
-$ php artisan migrate
+php artisan migrate
 ```
 
 ## Usage
@@ -67,14 +65,14 @@ use Overtrue\LaravelVersionable\Versionable;
 class Post extends Model
 {
     use Versionable;
-    
+
     /**
      * Versionable attributes
      *
      * @var array
      */
     protected $versionable = ['title', 'content'];
-    
+
     <...>
 }
 ```
@@ -113,10 +111,11 @@ $post->getVersion(3)->revert();
 
 $post->revertToVersion(3);
 ```
+
 #### Reversion without saving
 
 ```php
-$version = $post->versions()->first(); 
+$version = $post->versions()->first();
 
 $post = $version->revertWithoutSaving();
 ```
@@ -141,7 +140,6 @@ $post->forceRemoveAllVersions();
 $post->restoreTrashedVersion($id);
 ```
 
-
 ### Temporarily disable versioning
 
 ```php
@@ -160,21 +158,21 @@ Post::withoutVersion(function () use ($post) {
 
 You can set the following different version policies through property `protected $versionStrategy`:
 
--  `Overtrue\LaravelVersionable::DIFF` - Version content will only contain changed attributes (Default Strategy).
--  `Overtrue\LaravelVersionable::SNAPSHOT` - Version content will contain all versionable attributes values. 
+-   `Overtrue\LaravelVersionable::DIFF` - Version content will only contain changed attributes (Default Strategy).
+-   `Overtrue\LaravelVersionable::SNAPSHOT` - Version content will contain all versionable attributes values.
 
-## :heart: Sponsor me 
+## :heart: Sponsor me
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me.svg?raw=true)](https://github.com/sponsors/overtrue)
 
 如果你喜欢我的项目并想支持它，[点击这里 :heart:](https://github.com/sponsors/overtrue)
-
 
 ## Project supported by JetBrains
 
 Many thanks to Jetbrains for kindly providing a license for me to work on this and other open-source projects.
 
 [![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/overtrue)
+
 ## Contributing
 
 You can contribute in one of three ways:
