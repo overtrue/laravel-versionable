@@ -26,5 +26,5 @@ return [
     /**
      * The model class for user.
      */
-    'user_model' => \App\User::class,
+    'user_model' => \App\Models\User::class,
 ];
