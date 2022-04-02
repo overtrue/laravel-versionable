@@ -267,6 +267,11 @@ trait Versionable
         return config('versionable.version_model');
     }
 
+    public function getVersionUserId()
+    {
+        return $this->getAttribute(\config('versionable.user_foreign_key')) ?? auth()->id();
+    }
+
     /**
      * @return string
      */

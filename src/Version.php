@@ -61,7 +61,7 @@ class Version extends Model
 
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
-        $version->{\config('versionable.user_foreign_key')} = \auth()->id();
+        $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
         $version->contents = \array_merge($attributes, $model->getVersionableAttributes());
 
         $version->save();
