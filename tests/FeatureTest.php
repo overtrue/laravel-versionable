@@ -72,6 +72,12 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version3', 'content' => 'version3 content', 'extends' => ['name' => 'overtrue']]);
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
 
+        // #29
+        $version = $post->firstVersion();
+        $post = $version->revertWithoutSaving();
+        $this->assertSame('version1', $post->title);
+        $this->assertSame('version1 content', $post->content);
+
         // revert version 2
         $post->revertToVersion(2);
         $post->refresh();

@@ -50,7 +50,7 @@ trait Versionable
      */
     public function versions(): MorphMany
     {
-        return $this->morphMany(\config('versionable.version_model'), 'versionable')->latest('id');
+        return $this->morphMany(\config('versionable.version_model'), 'versionable');
     }
 
     /**
@@ -67,6 +67,11 @@ trait Versionable
     public function latestVersion(): MorphOne
     {
         return $this->morphOne(\config('versionable.version_model'), 'versionable')->latest('id');
+    }
+
+    public function firstVersion(): ?Model
+    {
+        return $this->versions()->oldest('id')->first();
     }
 
     /**
