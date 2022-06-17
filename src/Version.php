@@ -18,7 +18,7 @@ class Version extends Model
     /**
      * @var array
      */
-    protected $casts = [
+    protected array $casts = [
         'contents' => 'array',
     ];
 
