@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 trait Versionable
 {
     protected static bool $versioning = true;
-
     protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
@@ -45,41 +44,27 @@ trait Versionable
         }
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-     */
     public function versions(): MorphMany
     {
         return $this->morphMany(\config('versionable.version_model'), 'versionable');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
-     */
     public function lastVersion(): MorphOne
     {
         return $this->latestVersion();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
-     */
     public function latestVersion(): MorphOne
     {
         return $this->morphOne(\config('versionable.version_model'), 'versionable')->latest('id');
     }
 
-    public function firstVersion(): ?Model
+    public function firstVersion(): MorphOne
     {
-        return $this->versions()->oldest('id')->first();
+        return $this->morphOne(\config('versionable.version_model'), 'versionable')->oldest('id');
     }
 
-    /**
-     * @param  int  $id
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function getVersion(int $id)
+    public function getVersion(int $id): ?Version
     {
         return $this->versions()->find($id);
     }
@@ -94,20 +79,12 @@ trait Versionable
         return $this->versions()->onlyTrashed()->whereId($id)->restore();
     }
 
-    /**
-     * @param  int  $id
-     *
-     * @return mixed
-     */
-    public function revertToVersion(int $id)
+    public function revertToVersion(int $id): bool
     {
         return $this->versions()->findOrFail($id)->revert();
     }
 
-    /**
-     * @param  int  $keep
-     */
-    public function removeOldVersions(int $keep): void
+    public function removeOldVersions(int $keep = 1): void
     {
         if ($keep <= 0) {
             return;
@@ -134,7 +111,7 @@ trait Versionable
         return $this->versions()->findOrFail($id)->delete();
     }
 
-    public function removeAllVersions()
+    public function removeAllVersions(): void
     {
         if ($this->forceDeleteVersion) {
             $this->forceRemoveAllVersions();
@@ -150,25 +127,19 @@ trait Versionable
 
     public function forceRemoveVersions(array $ids)
     {
-        return $this->versions()->find($ids)->each->forceDelete();
+        return $this->versions()->findMany($ids)->each->forceDelete();
     }
 
-    public function forceRemoveAllVersions()
+    public function forceRemoveAllVersions(): void
     {
         $this->versions->each->forceDelete();
     }
 
-    /**
-     * @return bool
-     */
     public function shouldVersioning(): bool
     {
         return !empty($this->getVersionableAttributes());
     }
 
-    /**
-     * @return array
-     */
     public function getVersionableAttributes(): array
     {
         $changes = $this->getDirty();
@@ -187,13 +158,9 @@ trait Versionable
     }
 
     /**
-     * @param  array  $attributes
-     *
-     * @return $this
-     *
      * @throws \Exception
      */
-    public function setVersionable(array $attributes)
+    public function setVersionable(array $attributes): static
     {
         if (!\property_exists($this, 'versionable')) {
             throw new \Exception('Property $versionable not exist.');
@@ -205,13 +172,9 @@ trait Versionable
     }
 
     /**
-     * @param  array  $attributes
-     *
-     * @return $this
-     *
      * @throws \Exception
      */
-    public function setDontVersionable(array $attributes)
+    public function setDontVersionable(array $attributes): static
     {
         if (!\property_exists($this, 'dontVersionable')) {
             throw new \Exception('Property $dontVersionable not exist.');
@@ -222,38 +185,25 @@ trait Versionable
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getVersionable(): array
     {
         return \property_exists($this, 'versionable') ? $this->versionable : [];
     }
 
-    /**
-     * @return array
-     */
     public function getDontVersionable(): array
     {
         return \property_exists($this, 'dontVersionable') ? $this->dontVersionable : [];
     }
 
-    /**
-     * @return string
-     */
-    public function getVersionStrategy()
+    public function getVersionStrategy(): string
     {
         return \property_exists($this, 'versionStrategy') ? $this->versionStrategy : VersionStrategy::DIFF;
     }
 
     /**
-     * @param  string  $strategy
-     *
-     * @return $this
-     *
      * @throws \Exception
      */
-    public function setVersionStrategy(string $strategy)
+    public function setVersionStrategy(string $strategy): static
     {
         if (!\property_exists($this, 'versionStrategy')) {
             throw new \Exception('Property $versionStrategy not exist.');
@@ -264,9 +214,6 @@ trait Versionable
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getVersionModel(): string
     {
         return config('versionable.version_model');
@@ -277,21 +224,11 @@ trait Versionable
         return $this->getAttribute(\config('versionable.user_foreign_key')) ?? auth()->id();
     }
 
-    /**
-     * @return string
-     */
     public function getKeepVersionsCount(): string
     {
         return config('versionable.keep_versions', 0);
     }
 
-    /**
-     * Get the versionable attributes of a given array.
-     *
-     * @param  array  $attributes
-     *
-     * @return array
-     */
     public function versionableFromArray(array $attributes): array
     {
         if (count($this->getVersionable()) > 0) {
@@ -310,9 +247,6 @@ trait Versionable
         return static::$versioning;
     }
 
-    /**
-     * @param  callable  $callback
-     */
     public static function withoutVersion(callable $callback)
     {
         $lastState = static::$versioning;

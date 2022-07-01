@@ -4,16 +4,17 @@ namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Arr;
-use SebastianBergmann\Diff\Differ;
 
 /**
- * @property Model $versionable
+ * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
  * @property array $contents
+ * @property integer $id
  */
 class Version extends Model
 {
     use SoftDeletes;
+
+    protected $guarded = [];
 
     /**
      * @var array
@@ -69,42 +70,32 @@ class Version extends Model
         return $version;
     }
 
-    /**
-     * @return bool
-     */
-    public function revert()
+    public function revert(): bool
     {
         return $this->versionable->forceFill($this->contents)->save();
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Model|null  $model
-     */
     public function revertWithoutSaving(): ?Model
     {
         return $this->versionable->forceFill($this->contents);
     }
 
-    /**
-     * @param  \Illuminate\Database\Eloquent\Model|null  $model
-     *
-     * @return string
-     */
-    public function diff(Model $model = null): string
+    public function previousVersion(): ?static
     {
-        /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
-        $model || $model = $this->versionable;
+        return $this->versionable->versions()->where('id', '<', $this->id)->latest('id')->first();
+    }
 
-        if ($model instanceof Version) {
-            $source = $model->contents;
-        } else {
-            if (!\in_array(Versionable::class, \class_uses($model))) {
-                throw new \InvalidArgumentException(\sprintf('Model %s is not versionable.', \get_class($model)));
-            }
+    public function nextVersion(): ?static
+    {
+        return $this->versionable->versions()->where('id', '>', $this->id)->oldest('id')->first();
+    }
 
-            $source = $model->versionableFromArray($this->versionable->toArray());
+    public function diff(Version $toVersion = null, array $differOptions = [], array $renderOptions = []): Diff
+    {
+        if (!$toVersion) {
+            $toVersion = $this->previousVersion() ?? new static();
         }
 
-        return (new Differ())->diff(Arr::only($source, \array_keys($this->contents)), $this->contents);
+        return new Diff($this, $toVersion, $differOptions, $renderOptions);
     }
 }

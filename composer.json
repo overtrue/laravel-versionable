@@ -4,8 +4,8 @@
     "require": {
         "php": "^8.0.2",
         "laravel/framework": "^9.0",
-        "sebastian/diff": "^4.0",
-        "doctrine/dbal": "^3.0"
+        "doctrine/dbal": "^3.0",
+        "jfcherng/php-diff": "^6.11"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",

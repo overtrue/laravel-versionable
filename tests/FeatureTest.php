@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Overtrue\LaravelVersionable\Diff;
 use Overtrue\LaravelVersionable\VersionStrategy;
 
 class FeatureTest extends TestCase
@@ -73,7 +74,7 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
 
         // #29
-        $version = $post->firstVersion();
+        $version = $post->firstVersion;
         $post = $version->revertWithoutSaving();
         $this->assertSame('version1', $post->title);
         $this->assertSame('version1 content', $post->content);
@@ -103,12 +104,12 @@ class FeatureTest extends TestCase
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
-        $this->assertSame("--- Original\n+++ New\n", $post->lastVersion->diff($post));
+        $this->assertInstanceOf(Diff::class, $post->lastVersion->diff());
 
         $post->update(['title' => 'version2']);
         $post->refresh();
 
-        $this->assertSame("--- Original\n+++ New\n@@ @@\n-version1\n+version2\n", $post->lastVersion->diff($post->getVersion(1)));
+        $this->assertSame(['title' => ['old' => 'version1', 'new' => 'version2']], $post->lastVersion->diff()->toArray());
     }
 
     /**
