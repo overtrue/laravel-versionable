@@ -208,6 +208,7 @@ toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
 ```
 
 > **Note**
+> 
 > `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
 ## :heart: Sponsor me
