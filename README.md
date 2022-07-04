@@ -86,18 +86,15 @@ $post->update(['title' => 'version2']);
 
 ### Get versions
 
-Get all versions
-
 ```php
-$post->versions;
-```
-
-Get latest version
-
-```php
-$post->latestVersion;
+$post->versions; // all versions
+$post->latestVersion; // latest version
 // or
-$post->lastVersion;
+$post->lastVersion; 
+
+$post->versions->first(); // first version
+// or 
+$post->firstVersion;
 ```
 
 ### Reversion
@@ -160,6 +157,58 @@ You can set the following different version policies through property `protected
 
 -   `Overtrue\LaravelVersionable::DIFF` - Version content will only contain changed attributes (Default Strategy).
 -   `Overtrue\LaravelVersionable::SNAPSHOT` - Version content will contain all versionable attributes values.
+
+### Show diff between two versions
+
+```php
+$diff = $post->getVersion(1)->diff($post->getVersion(2)); 
+``` 
+
+`$diff` is a object `Overtrue\LaravelVersionable\Diff`, it based on [jfcherng/php-diff](https://github.com/jfcherng/php-diff).
+
+You can render the diff to [many formats](https://github.com/jfcherng/php-diff#introduction), and all formats result will be like follows:
+
+```php
+[
+    $attribute1 => $diffOfAttribute1,
+    $attribute2 => $diffOfAttribute2,
+    ...
+    $attributeN => $diffOfAttributeN,
+]
+```
+
+#### toArray()
+
+```php
+$diff->toArray();
+//
+[
+    "name" => [
+        "old" => "John",
+        "new" => "Doe",
+    ],
+    "age" => [
+        "old" => 25,
+        "new" => 26,
+    ],
+]
+```
+
+### Other formats
+
+```php
+toArray(array $differOptions = [], array $renderOptions = []): array
+toText(array $differOptions = [], array $renderOptions = []): array
+toJsonText(array $differOptions = [], array $renderOptions = []): array
+toContextText(array $differOptions = [], array $renderOptions = []): array
+toHtml(array $differOptions = [], array $renderOptions = []): array
+toInlineHtml(array $differOptions = [], array $renderOptions = []): array
+toJsonHtml(array $differOptions = [], array $renderOptions = []): array
+toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
+```
+
+> **Note**
+> `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
 ## :heart: Sponsor me
 
