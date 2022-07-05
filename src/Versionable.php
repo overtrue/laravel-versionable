@@ -274,7 +274,7 @@ trait Versionable
 
     public function getVersionUserId()
     {
-        return $this->getAttribute(\config('versionable.user_foreign_key')) ?? auth()->id();
+        return auth()->id() ?? $this->getAttribute(\config('versionable.user_foreign_key'));
     }
 
     /**
