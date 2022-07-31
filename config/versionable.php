@@ -27,9 +27,4 @@ return [
      * The model class for user.
      */
     'user_model' => \App\Models\User::class,
-    
-    /**
-    * The databases to migrate versions table to.
-    */
-    'databases' => [],
 ];
