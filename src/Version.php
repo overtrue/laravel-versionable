@@ -57,8 +57,10 @@ class Version extends Model
     {
         /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         $versionClass = $model->getVersionModel();
+        $versionConnection = $model->getConnectionName();
 
         $version = new $versionClass();
+        $version->setConnection($versionConnection);
 
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
