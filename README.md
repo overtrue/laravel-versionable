@@ -72,6 +72,9 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
+    
+    // Or use blacklist
+    //protected $dontVersionable = ['created_at', 'updated_at'];
 
     <...>
 }
