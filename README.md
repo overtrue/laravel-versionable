@@ -158,8 +158,8 @@ Post::withoutVersion(function () use ($post) {
 
 You can set the following different version policies through property `protected $versionStrategy`:
 
--   `Overtrue\LaravelVersionable::DIFF` - Version content will only contain changed attributes (Default Strategy).
--   `Overtrue\LaravelVersionable::SNAPSHOT` - Version content will contain all versionable attributes values.
+-   `Overtrue\LaravelVersionable\VersionStrategy::DIFF` - Version content will only contain changed attributes (default strategy).
+-   `Overtrue\LaravelVersionable\VersionStrategy::SNAPSHOT` - Version content will contain all versionable attributes values.
 
 ### Show diff between two versions
 
