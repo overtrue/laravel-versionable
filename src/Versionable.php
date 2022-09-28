@@ -46,7 +46,7 @@ trait Versionable
 
     public function versions(): MorphMany
     {
-        return $this->morphMany(\config('versionable.version_model'), 'versionable');
+        return $this->morphMany($this->getVersionModel(), 'versionable');
     }
 
     public function lastVersion(): MorphOne
@@ -56,12 +56,12 @@ trait Versionable
 
     public function latestVersion(): MorphOne
     {
-        return $this->morphOne(\config('versionable.version_model'), 'versionable')->latest('id');
+        return $this->morphOne($this->getVersionModel(), 'versionable')->latest('id');
     }
 
     public function firstVersion(): MorphOne
     {
-        return $this->morphOne(\config('versionable.version_model'), 'versionable')->oldest('id');
+        return $this->morphOne($this->getVersionModel(), 'versionable')->oldest('id');
     }
 
     public function getVersion(int $id): ?Version
