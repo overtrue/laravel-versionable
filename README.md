@@ -72,7 +72,7 @@ class Post extends Model
      * @var array
      */
     protected $versionable = ['title', 'content'];
-    
+
     // Or use blacklist
     //protected $dontVersionable = ['created_at', 'updated_at'];
 
@@ -93,11 +93,15 @@ $post->update(['title' => 'version2']);
 $post->versions; // all versions
 $post->latestVersion; // latest version
 // or
-$post->lastVersion; 
+$post->lastVersion;
 
 $post->versions->first(); // first version
-// or 
+// or
 $post->firstVersion;
+
+$post->versionAt('2022-10-06 12:00:00'); // get version from a specific time
+// or
+$post->versionAt(\Carbon\Carbon::create(2022, 10, 6, 12));
 ```
 
 ### Reversion
@@ -164,8 +168,8 @@ You can set the following different version policies through property `protected
 ### Show diff between two versions
 
 ```php
-$diff = $post->getVersion(1)->diff($post->getVersion(2)); 
-``` 
+$diff = $post->getVersion(1)->diff($post->getVersion(2));
+```
 
 `$diff` is a object `Overtrue\LaravelVersionable\Diff`, it based on [jfcherng/php-diff](https://github.com/jfcherng/php-diff).
 
@@ -211,7 +215,7 @@ toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
 ```
 
 > **Note**
-> 
+>
 > `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
 ## :heart: Sponsor me
