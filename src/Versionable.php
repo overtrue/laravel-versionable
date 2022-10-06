@@ -5,6 +5,7 @@ namespace Overtrue\LaravelVersionable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Carbon;
 
 trait Versionable
 {
@@ -62,6 +63,25 @@ trait Versionable
     public function firstVersion(): MorphOne
     {
         return $this->morphOne($this->getVersionModel(), 'versionable')->oldest('id');
+    }
+
+    /**
+     * Get the version for a specific time.
+     *
+     * @param string|DateTimeInterface|null $time
+     * @param DateTimeZone|string|null      $tz
+     *
+     * @throws \Carbon\Exceptions\InvalidFormatException
+     *
+     * @return static
+     */
+    public function versionAt($time = null, $tz = null): ?Version
+    {
+        return $this->versions()
+            ->where('created_at', '<=', Carbon::parse($time, $tz))
+            ->orderByDesc('created_at')
+            ->orderByDesc($this->getKey())
+            ->first();
     }
 
     public function getVersion(int $id): ?Version
