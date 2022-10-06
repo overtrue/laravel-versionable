@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Illuminate\Support\Carbon;
-use Overtrue\LaravelVersionable\Diff;
 
 class VersionAtTest extends TestCase
 {
@@ -18,7 +17,7 @@ class VersionAtTest extends TestCase
         config([
             'auth.providers.users.model' => User::class,
             'versionable.user_model' => User::class,
-       ]);
+        ]);
 
         $this->user = User::create(['name' => 'marijoo']);
         $this->actingAs($this->user);

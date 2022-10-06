@@ -40,8 +40,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "Context"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "Context"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Context'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Context'),
             ],
             (new Diff($new, $old))->toContextText()
         );
@@ -54,8 +54,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "Unified"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "Unified"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Unified'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Unified'),
             ],
             (new Diff($new, $old))->toText()
         );
@@ -68,8 +68,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "JsonText"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "JsonText"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'JsonText'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'JsonText'),
             ],
             (new Diff($new, $old))->toJsonText()
         );
@@ -82,8 +82,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "Combined"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "Combined"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Combined'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Combined'),
             ],
             (new Diff($new, $old))->toHtml()
         );
@@ -96,8 +96,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "Inline"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "Inline"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Inline'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Inline'),
             ],
             (new Diff($new, $old))->toInlineHtml()
         );
@@ -110,8 +110,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "JsonHtml"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "JsonHtml"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'JsonHtml'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'JsonHtml'),
             ],
             (new Diff($new, $old))->toJsonHtml()
         );
@@ -124,8 +124,8 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
-                'content' => DiffHelper::calculate("version1 content", "version2 content", "SideBySide"),
-                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), "SideBySide"),
+                'content' => DiffHelper::calculate('version1 content', 'version2 content', 'SideBySide'),
+                'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'SideBySide'),
             ],
             (new Diff($new, $old))->toSideBySideHtml()
         );

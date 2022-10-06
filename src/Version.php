@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
  * @property array $contents
- * @property integer $id
+ * @property int $id
  */
 class Version extends Model
 {
@@ -49,8 +49,7 @@ class Version extends Model
 
     /**
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array                                $attributes
-     *
+     * @param  array  $attributes
      * @return \Overtrue\LaravelVersionable\Version
      */
     public static function createForModel(Model $model, array $attributes = []): Version
@@ -74,7 +73,7 @@ class Version extends Model
 
     public function revert(): bool
     {
-        return $this->versionable->forceFill($this->contents)->save();
+        return $this->revertWithoutSaving()->save();
     }
 
     public function revertWithoutSaving(): ?Model
@@ -94,7 +93,7 @@ class Version extends Model
 
     public function diff(Version $toVersion = null, array $differOptions = [], array $renderOptions = []): Diff
     {
-        if (!$toVersion) {
+        if (! $toVersion) {
             $toVersion = $this->previousVersion() ?? new static();
         }
 

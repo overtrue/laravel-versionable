@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 trait Versionable
 {
     protected static bool $versioning = true;
+
     protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
@@ -68,12 +69,11 @@ trait Versionable
     /**
      * Get the version for a specific time.
      *
-     * @param string|DateTimeInterface|null $time
-     * @param DateTimeZone|string|null      $tz
+     * @param  string|DateTimeInterface|null  $time
+     * @param  DateTimeZone|string|null  $tz
+     * @return static
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
-     *
-     * @return static
      */
     public function versionAt($time = null, $tz = null): ?Version
     {
@@ -157,7 +157,7 @@ trait Versionable
 
     public function shouldVersioning(): bool
     {
-        return !empty($this->getVersionableAttributes());
+        return ! empty($this->getVersionableAttributes());
     }
 
     public function getVersionableAttributes(): array
@@ -168,13 +168,15 @@ trait Versionable
             return [];
         }
 
-        $contents = $this->attributesToArray();
+        $changes = $this->versionableFromArray($changes);
+        $changedKeys = array_keys($changes);
 
-        if ($this->getVersionStrategy() == VersionStrategy::DIFF) {
-            $contents = $this->only(\array_keys($changes));
+        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && ! empty($changes)) {
+            $changedKeys = array_keys($this->getAttributes());
         }
 
-        return $this->versionableFromArray($contents);
+        // to keep casts and mutators works, we need to get the updated attributes from the model
+        return $this->only($changedKeys);
     }
 
     /**
@@ -182,7 +184,7 @@ trait Versionable
      */
     public function setVersionable(array $attributes): static
     {
-        if (!\property_exists($this, 'versionable')) {
+        if (! \property_exists($this, 'versionable')) {
             throw new \Exception('Property $versionable not exist.');
         }
 
@@ -196,7 +198,7 @@ trait Versionable
      */
     public function setDontVersionable(array $attributes): static
     {
-        if (!\property_exists($this, 'dontVersionable')) {
+        if (! \property_exists($this, 'dontVersionable')) {
             throw new \Exception('Property $dontVersionable not exist.');
         }
 
@@ -225,7 +227,7 @@ trait Versionable
      */
     public function setVersionStrategy(string $strategy): static
     {
-        if (!\property_exists($this, 'versionStrategy')) {
+        if (! \property_exists($this, 'versionStrategy')) {
             throw new \Exception('Property $versionStrategy not exist.');
         }
 

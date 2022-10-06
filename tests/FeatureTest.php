@@ -18,7 +18,7 @@ class FeatureTest extends TestCase
         config([
             'auth.providers.users.model' => User::class,
             'versionable.user_model' => User::class,
-       ]);
+        ]);
 
         $this->user = User::create(['name' => 'overtrue']);
         $this->actingAs($this->user);
@@ -34,12 +34,37 @@ class FeatureTest extends TestCase
         $this->assertCount(1, $post->versions);
         $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
 
+        $this->assertDatabaseCount('versions', 1);
+
         // version2
         $post->update(['title' => 'version2']);
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
         $this->assertSame($post->only('title'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 2);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_work_with_snapshot_strategy()
+    {
+        $post = new Post(['title' => 'Title', 'content' => 'Content']);
+        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
+
+        $post->save();
+        $this->assertDatabaseCount('versions', 1);
+
+        $this->travelTo(now()->addMinute());
+
+        $post->setVersionable(['title']);
+        $post->update(['title' => 'title changed']);
+        $this->assertDatabaseCount('versions', 2);
+
+        // content is not versionable
+        $post->update(['content' => 'content changed']);
+        $this->assertDatabaseCount('versions', 2);
     }
 
     /**
@@ -59,7 +84,12 @@ class FeatureTest extends TestCase
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
-        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertArrayHasKey('title', $post->lastVersion->contents);
+        $this->assertArrayHasKey('content', $post->lastVersion->contents);
+        $this->assertArrayHasKey('created_at', $post->lastVersion->contents);
+        $this->assertArrayHasKey('updated_at', $post->lastVersion->contents);
+        $this->assertArrayHasKey('id', $post->lastVersion->contents);
+        $this->assertArrayHasKey('user_id', $post->lastVersion->contents);
         $this->assertSame('version1 content', $post->lastVersion->contents['content']);
     }
 
@@ -76,16 +106,20 @@ class FeatureTest extends TestCase
         // #29
         $version = $post->firstVersion;
         $post = $version->revertWithoutSaving();
+
         $this->assertSame('version1', $post->title);
         $this->assertSame('version1 content', $post->content);
 
+        $post->refresh();
+
         // revert version 2
-        $post->revertToVersion(2);
+        $post->revertToVersion($post->firstVersion->nextVersion()->id);
         $post->refresh();
 
         // only title updated
         $this->assertSame('version2', $post->title);
         $this->assertSame('version4 content', $post->content);
+
         $this->assertSame(['foo' => 'bar'], $post->extends);
 
         // revert version 3
@@ -132,7 +166,6 @@ class FeatureTest extends TestCase
 
         $this->assertCount(0, $post->versions);
     }
-
 
     /**
      * @test
@@ -196,7 +229,6 @@ class FeatureTest extends TestCase
         $post->refresh();
         $this->assertDatabaseCount('versions', 3);
 
-
         // soft delete
         $post->refresh();
         // first
@@ -241,7 +273,6 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version3']);
         $post->refresh();
         $this->assertDatabaseCount('versions', 3);
-
 
         // forced delete
         $post->enableForceDeleteVersion();
