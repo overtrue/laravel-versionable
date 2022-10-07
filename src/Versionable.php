@@ -21,7 +21,7 @@ trait Versionable
     {
         static::saved(
             function (Model $model) {
-                static::createVersionForModel($model);
+                $model->autoCreateVersion();
             }
         );
 
@@ -31,24 +31,47 @@ trait Versionable
                 if ($model->forceDeleting) {
                     $model->forceRemoveAllVersions();
                 } else {
-                    static::createVersionForModel($model);
+                    $model->autoCreateVersion();
                 }
             }
         );
     }
 
-    private static function createVersionForModel(Model $model): void
+    private function autoCreateVersion(): ?Version
     {
-        /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
-        if (static::$versioning && $model->shouldVersioning()) {
-            Version::createForModel($model);
-            $model->removeOldVersions($model->getKeepVersionsCount());
+        if (static::$versioning) {
+            return $this->createVersion();
         }
+
+        return null;
+    }
+
+    /**
+     * @param  array  $attributes
+     * @param  string|DateTimeInterface|null  $time
+     * @return ?Version
+     *
+     * @throws \Carbon\Exceptions\InvalidFormatException
+     */
+    public function createVersion(array $attributes = [], $time = null): ?Version
+    {
+        if ($this->shouldBeVersioning() || !empty($attributes)) {
+            return tap(Version::createForModel($this, $attributes, $time), function () {
+                $this->removeOldVersions($this->getKeepVersionsCount());
+            });
+        }
+
+        return null;
     }
 
     public function versions(): MorphMany
     {
         return $this->morphMany($this->getVersionModel(), 'versionable');
+    }
+
+    public function history(): MorphMany
+    {
+        return $this->versions()->orderLatestFirst();
     }
 
     public function lastVersion(): MorphOne
@@ -58,12 +81,12 @@ trait Versionable
 
     public function latestVersion(): MorphOne
     {
-        return $this->morphOne($this->getVersionModel(), 'versionable')->latest('id');
+        return $this->morphOne($this->getVersionModel(), 'versionable')->orderLatestFirst();
     }
 
     public function firstVersion(): MorphOne
     {
-        return $this->morphOne($this->getVersionModel(), 'versionable')->oldest('id');
+        return $this->morphOne($this->getVersionModel(), 'versionable')->orderOldestFirst();
     }
 
     /**
@@ -77,10 +100,8 @@ trait Versionable
      */
     public function versionAt($time = null, $tz = null): ?Version
     {
-        return $this->versions()
+        return $this->history()
             ->where('created_at', '<=', Carbon::parse($time, $tz))
-            ->orderByDesc('created_at')
-            ->orderByDesc($this->getKey())
             ->first();
     }
 
@@ -110,7 +131,7 @@ trait Versionable
             return;
         }
 
-        $this->versions()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
+        $this->history()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
     public function removeVersions(array $ids)
@@ -155,28 +176,28 @@ trait Versionable
         $this->versions->each->forceDelete();
     }
 
-    public function shouldVersioning(): bool
+    public function shouldBeVersioning(): bool
     {
-        return ! empty($this->getVersionableAttributes());
+        return !empty($this->getVersionableAttributes());
     }
 
-    public function getVersionableAttributes(): array
+    public function getVersionableAttributes(array $attributes = []): array
     {
         $changes = $this->getDirty();
 
-        if (empty($changes)) {
+        if (empty($changes) && empty($attributes)) {
             return [];
         }
 
         $changes = $this->versionableFromArray($changes);
         $changedKeys = array_keys($changes);
 
-        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && ! empty($changes)) {
+        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && (!empty($changes) || !empty($attributes))) {
             $changedKeys = array_keys($this->getAttributes());
         }
 
         // to keep casts and mutators works, we need to get the updated attributes from the model
-        return $this->only($changedKeys);
+        return \array_merge($this->only($changedKeys), $attributes);
     }
 
     /**
@@ -184,7 +205,7 @@ trait Versionable
      */
     public function setVersionable(array $attributes): static
     {
-        if (! \property_exists($this, 'versionable')) {
+        if (!\property_exists($this, 'versionable')) {
             throw new \Exception('Property $versionable not exist.');
         }
 
@@ -198,7 +219,7 @@ trait Versionable
      */
     public function setDontVersionable(array $attributes): static
     {
-        if (! \property_exists($this, 'dontVersionable')) {
+        if (!\property_exists($this, 'dontVersionable')) {
             throw new \Exception('Property $dontVersionable not exist.');
         }
 
@@ -227,7 +248,7 @@ trait Versionable
      */
     public function setVersionStrategy(string $strategy): static
     {
-        if (! \property_exists($this, 'versionStrategy')) {
+        if (!\property_exists($this, 'versionStrategy')) {
             throw new \Exception('Property $versionStrategy not exist.');
         }
 

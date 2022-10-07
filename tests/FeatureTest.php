@@ -2,7 +2,9 @@
 
 namespace Tests;
 
+use Illuminate\Support\Carbon;
 use Overtrue\LaravelVersionable\Diff;
+use Overtrue\LaravelVersionable\Version;
 use Overtrue\LaravelVersionable\VersionStrategy;
 
 class FeatureTest extends TestCase
@@ -144,6 +146,87 @@ class FeatureTest extends TestCase
         $post->refresh();
 
         $this->assertSame(['title' => ['old' => 'version1', 'new' => 'version2']], $post->lastVersion->diff()->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_get_previous_version()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $post->update(['title' => 'version2']);
+        $post->update(['title' => 'version3']);
+
+        $post->refresh();
+
+        $this->assertEquals('version3', $post->latestVersion->contents['title']);
+        $this->assertEquals('version2', $post->latestVersion->previousVersion()->contents['title']);
+        $this->assertEquals('version1', $post->latestVersion->previousVersion()->previousVersion()->contents['title']);
+        $this->assertNull($post->latestVersion->previousVersion()->previousVersion()->previousVersion());
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_get_next_version()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $post->update(['title' => 'version2']);
+        $post->update(['title' => 'version3']);
+
+        $post->refresh();
+
+        $this->assertEquals('version1', $post->firstVersion->contents['title']);
+        $this->assertEquals('version2', $post->firstVersion->nextVersion()->contents['title']);
+        $this->assertEquals('version3', $post->firstVersion->nextVersion()->nextVersion()->contents['title']);
+        $this->assertNull($post->firstVersion->nextVersion()->nextVersion()->nextVersion());
+    }
+
+    /**
+     * @test
+     */
+    public function previous_versions_created_later_on_will_have_correct_order()
+    {
+        $this->travelTo(Carbon::create(2022, 10, 2, 14, 0));
+
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $post->update(['title' => 'version2']);
+
+        $this->travelTo(Carbon::create(2022, 10, 2, 15, 0));
+        $post->update(['title' => 'version5']);
+
+        $post->refresh();
+
+        $post->title = 'version4';
+        $post->createVersion([], Carbon::create(2022, 10, 2, 14, 30));
+        $post->createVersion(['title' => 'version3'], Carbon::create(2022, 10, 2, 14, 0));
+
+        $post->refresh();
+
+        $this->assertEquals('version5', $post->title);
+        $this->assertEquals('version5', $post->latestVersion->contents['title']);
+        $this->assertEquals('version4', $post->latestVersion->previousVersion()->contents['title']);
+        $this->assertEquals('version3', $post->latestVersion->previousVersion()->previousVersion()->contents['title']);
+        $this->assertEquals('version2', $post->latestVersion->previousVersion()->previousVersion()->previousVersion()->contents['title']);
+        $this->assertEquals('version1', $post->latestVersion->previousVersion()->previousVersion()->previousVersion()->previousVersion()->contents['title']);
+        $this->assertNull($post->latestVersion->previousVersion()->previousVersion()->previousVersion()->previousVersion()->previousVersion());
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_get_ordered_history()
+    {
+        $post = Post::create(['title' => 'version2', 'content' => 'version2 content']);
+        $post->update(['title' => 'version3']);
+        $post->update(['title' => 'version4']);
+
+        $post->createVersion(['title' => 'version1'], Carbon::now()->subDay(1));
+
+        $this->assertEquals(
+            ['version4', 'version3', 'version2', 'version1'],
+            $post->history->pluck('contents.title')->toArray(),
+        );
     }
 
     /**

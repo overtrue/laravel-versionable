@@ -2,8 +2,10 @@
 
 namespace Overtrue\LaravelVersionable;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
@@ -50,9 +52,12 @@ class Version extends Model
     /**
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @param  array  $attributes
+     * @param  string|DateTimeInterface|null  $time
      * @return \Overtrue\LaravelVersionable\Version
+     *
+     * @throws \Carbon\Exceptions\InvalidFormatException
      */
-    public static function createForModel(Model $model, array $attributes = []): Version
+    public static function createForModel(Model $model, array $attributes = [], $time = null): Version
     {
         /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         $versionClass = $model->getVersionModel();
@@ -64,7 +69,11 @@ class Version extends Model
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
         $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
-        $version->contents = \array_merge($attributes, $model->getVersionableAttributes());
+        $version->contents = $model->getVersionableAttributes($attributes);
+
+        if ($time) { 
+            $version->created_at = Carbon::parse($time);
+        }
 
         $version->save();
 
@@ -81,19 +90,46 @@ class Version extends Model
         return $this->versionable->forceFill($this->contents);
     }
 
+    public function scopeOrderOldestFirst(Builder $query): Builder
+    {
+        return $query->oldest()->oldest('id');
+    }
+
+    public function scopeOrderLatestFirst(Builder $query): Builder
+    {
+        return $query->latest()->latest('id');
+    }
+
     public function previousVersion(): ?static
     {
-        return $this->versionable->versions()->where('id', '<', $this->id)->latest('id')->first();
+        return $this->versionable->history()
+            ->where(function ($query) {
+                $query->where('created_at', '<', $this->created_at)
+                    ->orWhere(function ($query) {
+                        $query->where('id', '<', $this->getKey())
+                            ->where('created_at', '<=', $this->created_at);
+                    });
+            })
+            ->first();
     }
 
     public function nextVersion(): ?static
     {
-        return $this->versionable->versions()->where('id', '>', $this->id)->oldest('id')->first();
+        return $this->versionable->versions()
+            ->where(function ($query) {
+                $query->where('created_at', '>', $this->created_at)
+                    ->orWhere(function ($query) {
+                        $query->where('id', '>', $this->getKey())
+                            ->where('created_at', '>=', $this->created_at);
+                    });
+            })
+            ->orderOldestFirst()
+            ->first();
     }
 
     public function diff(Version $toVersion = null, array $differOptions = [], array $renderOptions = []): Diff
     {
-        if (! $toVersion) {
+        if (!$toVersion) {
             $toVersion = $this->previousVersion() ?? new static();
         }
 
