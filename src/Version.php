@@ -71,7 +71,9 @@ class Version extends Model
         $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
         $version->contents = $model->getVersionableAttributes($attributes);
 
-        if ($time) $version->created_at = Carbon::parse($time);
+        if ($time) { 
+            $version->created_at = Carbon::parse($time);
+        }
 
         $version->save();
 
