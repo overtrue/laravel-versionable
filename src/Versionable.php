@@ -181,23 +181,23 @@ trait Versionable
         return !empty($this->getVersionableAttributes());
     }
 
-    public function getVersionableAttributes(): array
+    public function getVersionableAttributes(array $attributes = []): array
     {
         $changes = $this->getDirty();
 
-        if (empty($changes)) {
+        if (empty($changes) && empty($attributes)) {
             return [];
         }
 
         $changes = $this->versionableFromArray($changes);
         $changedKeys = array_keys($changes);
 
-        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && !empty($changes)) {
+        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && (!empty($changes) || !empty($attributes))) {
             $changedKeys = array_keys($this->getAttributes());
         }
 
         // to keep casts and mutators works, we need to get the updated attributes from the model
-        return $this->only($changedKeys);
+        return \array_merge($this->only($changedKeys), $attributes);
     }
 
     /**

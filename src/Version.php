@@ -69,7 +69,7 @@ class Version extends Model
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
         $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
-        $version->contents = \array_merge($model->getVersionableAttributes(), $attributes);
+        $version->contents = $model->getVersionableAttributes($attributes);
 
         if ($time) $version->created_at = Carbon::parse($time);
 
