@@ -178,6 +178,11 @@ trait Versionable
 
     public function shouldBeVersioning(): bool
     {
+        // xxx: fix break change
+        if (method_exists($this, 'shouldVersioning')) {
+            return call_user_func([$this, 'shouldVersioning']);
+        }
+
         return !empty($this->getVersionableAttributes());
     }
 
