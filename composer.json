@@ -3,7 +3,7 @@
     "description": "Make Laravel model versionable.",
     "require": {
         "php": "^8.0.2",
-        "laravel/framework": "^9.0",
+        "laravel/framework": "^9.0|^10.0",
         "doctrine/dbal": "^3.0",
         "jfcherng/php-diff": "^6.11"
     },
