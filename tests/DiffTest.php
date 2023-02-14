@@ -130,4 +130,69 @@ class DiffTest extends TestCase
             (new Diff($new, $old))->toSideBySideHtml()
         );
     }
+
+    public function test_diff_nested_array_to_array()
+    {
+        $oldContent = [
+            'a' => 'nested content version 1',
+            'b' => [
+                -44.061269,
+                "lorem",
+                "ipsum dolor sit amet",
+            ],
+            'c' => [
+                'c1' => [
+                    'c11' => -44.061269,
+                    'c12' => 42.061269
+                ],
+                'c2' => "lorem",
+                'c3' => "ipsum dolor sit amet",
+            ]
+        ];
+        $old = new Version([
+            'contents' => [
+                'title' => 'version1',
+                'content' => $oldContent
+            ]
+        ]);
+
+        $newContent = [
+            'a' => 'nested content version 2',
+            'c' => [
+                'c1' => [
+                    'c11' => -46.061269,
+                    'c12' => 142.061269
+                ],
+                'c2' => "dolor",
+                'c3' => "sit amet",
+            ]
+        ];
+        $new = new Version([
+            'contents' => [
+                'title' => 'version2',
+                'content' => $newContent,
+                'user_id' => 123
+            ]
+        ]);
+
+        $this->assertSame(
+            [
+                'title' => [
+                    'old' => 'version1',
+                    'new' => 'version2'
+                ],
+                'content' => [
+                    'old' => $oldContent,
+                    'new' => $newContent
+                ],
+                'user_id' => [
+                    'old' => null,
+                    'new' => 123
+                ],
+            ],
+            (new Diff($new, $old))->toArray()
+        );
+
+
+    }
 }
