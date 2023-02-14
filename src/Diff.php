@@ -3,6 +3,7 @@
 namespace Overtrue\LaravelVersionable;
 
 use Jfcherng\Diff\DiffHelper;
+use Rogervila\ArrayDiffMultidimensional;
 
 /**
  * @see https://github.com/jfcherng/php-diff#example
@@ -81,7 +82,7 @@ class Diff
             }
         };
 
-        foreach (array_diff_assoc($fromContents, $toContents) as $key => $value) {
+        foreach (ArrayDiffMultidimensional::compare($fromContents, $toContents) as $key => $value) {
             $createDiff($key, $toContents[$key] ?? null, $value);
         }
 
