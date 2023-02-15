@@ -20,7 +20,7 @@ jobs:
     phpunit:
         strategy:
             matrix:
-                php_version: [8.0, 8.1]
+                php_version: [8.1, 8.2]
                 dependency_version: ["highest", "lowest"]
         runs-on: ubuntu-latest
         steps:

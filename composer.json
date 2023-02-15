@@ -9,10 +9,11 @@
         "rogervila/array-diff-multidimensional": "^2.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.0",
-        "orchestra/testbench": "^7.0",
+        "phpunit/phpunit": "^10.0",
+        "orchestra/testbench": "^9.0",
         "mockery/mockery": "^1.4",
-        "laravel/pint": "^1.2"
+        "laravel/pint": "^1.5",
+        "brainmaestro/composer-git-hooks": "dev-master"
     },
     "autoload": {
         "psr-4": {

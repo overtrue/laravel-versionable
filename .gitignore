@@ -10,3 +10,4 @@ composer.lock
 cghooks.lock
 
 .php-cs-fixer.cache
+.phpunit.cache
