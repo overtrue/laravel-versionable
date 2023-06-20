@@ -218,6 +218,30 @@ toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
 >
 > `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
+### You can use another model(table) for store versions 
+
+You can define this variable in class, that used this trait to change model(table) for versions\
+> **Note**
+> 
+> Model MUST extend \Overtrue\LaravelVersionable\Version\
+
+```php
+<?php
+//Example for pivot table
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Overtrue\LaravelVersionable\Versionable;
+
+class RoleHasPermissions extends Pivot
+{
+    use Versionable;
+
+    public string $versionModel = VersionsRolePermission::class;
+}
+
+```
+
 ## :heart: Sponsor me
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me.svg?raw=true)](https://github.com/sponsors/overtrue)
