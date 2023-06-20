@@ -17,6 +17,10 @@ trait Versionable
     //protected $versionable = [];
     //protected $dontVersionable = ['*'];
 
+    // You can define this variable in class, that used this trait to change Model(table) for versions
+    // Model MUST extend \Overtrue\LaravelVersionable\Version
+    //public string $versionModel;
+
     public static function bootVersionable()
     {
         static::saved(
@@ -264,7 +268,7 @@ trait Versionable
 
     public function getVersionModel(): string
     {
-        return config('versionable.version_model');
+        return $this->versionModel ?? config('versionable.version_model');
     }
 
     public function getVersionUserId()
