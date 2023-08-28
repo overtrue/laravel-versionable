@@ -206,7 +206,7 @@ trait Versionable
         }
 
         // to keep casts and mutators works, we need to get the updated attributes from the model
-        return \array_merge($this->only($changedKeys), $attributes);
+        return \array_merge(array_intersect_key($this->getAttributes(), array_flip($changedKeys)), $attributes);
     }
 
     /**
