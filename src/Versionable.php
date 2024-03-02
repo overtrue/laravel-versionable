@@ -23,6 +23,18 @@ trait Versionable
 
     public static function bootVersionable()
     {
+        if (config('versionable.create_initial_versions')) {
+            static::updating(
+                function (Model $model) {
+                    if ($model->versions()->count() === 0) {
+                        $existingModel = self::find($model->id);
+
+                        Version::createForModel($existingModel, $existingModel->only($existingModel->getVersionable()));
+                    }
+                }
+            );
+        }
+        
         static::saved(
             function (Model $model) {
                 $model->autoCreateVersion();
