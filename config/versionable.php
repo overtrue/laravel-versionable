@@ -8,6 +8,12 @@ return [
     'migrations' => true,
 
     /*
+     * Create the initial versions of model. If you're installing this on an existing application, 
+     * you may want to create a version of the current model.
+     */
+    'create_initial_versions' => false,
+
+    /*
      * Keep versions, you can redefine in target model.
      * Default: 0 - Keep all versions.
      */
