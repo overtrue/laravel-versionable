@@ -439,4 +439,50 @@ class FeatureTest extends TestCase
         $this->assertCount(1, $post->versions);
         $this->assertNotSame('version1', $post->firstVersion->contents['title']);
     }
+
+    /**
+     * @test
+     */
+    public function it_records_only_changed_attributes_when_enabled()
+    {
+        Config::set('versionable.record_only_changed_attributes', true);
+
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $post->update(['title' => 'version2']);
+
+        $post->refresh();
+
+        $firstVersion = $post->firstVersion->contents;
+        $lastVersion = $post->lastVersion->contents;
+
+        $this->assertArrayHasKey('title', $firstVersion);
+        $this->assertArrayHasKey('content', $firstVersion);
+
+        $this->assertArrayHasKey('title', $lastVersion);
+        $this->assertArrayNotHasKey('content', $lastVersion);
+    }
+
+    /**
+     * @test
+     */
+    public function it_records_all_attributes_when_enabled()
+    {
+        Config::set('versionable.record_only_changed_attributes', false);
+
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $post->update(['title' => 'version2']);
+
+        $post->refresh();
+
+        $firstVersion = $post->firstVersion->contents;
+        $lastVersion = $post->lastVersion->contents;
+
+        $this->assertArrayHasKey('title', $firstVersion);
+        $this->assertArrayHasKey('content', $firstVersion);
+
+        $this->assertArrayHasKey('title', $lastVersion);
+        $this->assertArrayHasKey('content', $lastVersion);
+    }
 }
