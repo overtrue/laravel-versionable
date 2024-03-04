@@ -1,18 +1,6 @@
 <?php
 
 return [
-    /**
-     * Load migrations from package migrations,
-     * if You published the migration files, please set to `false`.
-     */
-    'migrations' => true,
-
-    /*
-     * Create the initial versions of model. If you're installing this on an existing application,
-     * you may want to create a version of the current model.
-     */
-    'keep_original_version' => false,
-
     /*
      * Keep versions, you can redefine in target model.
      * Default: 0 - Keep all versions.

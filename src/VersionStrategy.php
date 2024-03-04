@@ -4,7 +4,6 @@ namespace Overtrue\LaravelVersionable;
 
 enum VersionStrategy
 {
-    case DIFF; // changed attributes in $versionable
-    case SNAPSHOT; // all attributes in $versionable
-    case ALL; // all attributes of the model
+    case DIFF; // save changed attributes in $versionable
+    case SNAPSHOT; // save all attributes in $versionable
 }

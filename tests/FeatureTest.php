@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
 use Overtrue\LaravelVersionable\Diff;
 use Overtrue\LaravelVersionable\Version;
 use Overtrue\LaravelVersionable\VersionStrategy;
@@ -73,29 +72,54 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function post_create_version_with_strategy()
+    public function it_can_create_version_with_diff_strategy()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content', 'user_id' => 1234]);
 
-        // strategy is diff
+        // default strategy is diff
         $this->assertCount(1, $post->versions);
-        // no 'user_id' in version
+
+        $post->update(['title' => 'version2', 'content' => 'version2 content', 'user_id' => 1234]);
+        $post->refresh();
+
+        $this->assertCount(2, $post->versions);
+
+        // 'user_id' is not in $versionable
         $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
 
         // change strategy to snapshot
         $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
 
-        // version2
+        // version3
+        $post->update(['title' => 'version3']);
+        $post->refresh();
+
+        $this->assertCount(3, $post->versions);
+        $this->assertArrayHasKey('title', $post->lastVersion->contents);
+        $this->assertArrayHasKey('content', $post->lastVersion->contents);
+        $this->assertSame('version3', $post->lastVersion->contents['title']);
+        $this->assertSame('version2 content', $post->lastVersion->contents['content']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_create_version_with_snapshot_strategy()
+    {
+        $post = new Post(['title' => 'version1', 'content' => 'version1 content', 'user_id' => 1234]);
+
+        // change strategy to snapshot
+        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
+
+        $post->save();
+
         $post->update(['title' => 'version2']);
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
         $this->assertArrayHasKey('title', $post->lastVersion->contents);
         $this->assertArrayHasKey('content', $post->lastVersion->contents);
-        $this->assertArrayHasKey('created_at', $post->lastVersion->contents);
-        $this->assertArrayHasKey('updated_at', $post->lastVersion->contents);
-        $this->assertArrayHasKey('id', $post->lastVersion->contents);
-        $this->assertArrayHasKey('user_id', $post->lastVersion->contents);
+        $this->assertSame('version2', $post->lastVersion->contents['title']);
         $this->assertSame('version1 content', $post->lastVersion->contents['content']);
     }
 
@@ -104,8 +128,6 @@ class FeatureTest extends TestCase
      */
     public function post_can_revert_to_target_version()
     {
-        \config(['versionable.keep_original_version' => true]);
-
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
         $post->update(['title' => 'version2', 'extends' => ['foo' => 'bar']]);
         $post->update(['title' => 'version3', 'content' => 'version3 content', 'extends' => ['name' => 'overtrue']]);
@@ -148,6 +170,14 @@ class FeatureTest extends TestCase
         $this->assertSame('version4', $post->title);
         $this->assertSame('version4 content', $post->content);
         $this->assertSame(['name' => 'overtrue'], $post->extends);
+    }
+
+    /**
+     * @test
+     */
+    public function the_initial_version_cannot_be_deleted()
+    {
+        //todo
     }
 
     /**
@@ -294,13 +324,16 @@ class FeatureTest extends TestCase
         $this->assertTrue(Post::getVersioning());
         $post->refresh();
 
+        // before
         $this->assertCount(1, $post->versions);
-        $this->assertSame(['title' => 'version1', 'content' => 'version1 content'], $post->lastVersion->contents);
 
         Post::disableVersioning();
         Post::withoutVersion(function () use ($post) {
             $post->update(['title' => 'version2']);
         });
+
+        // after
+        $this->assertCount(1, $post->versions);
 
         $this->assertFalse(Post::getVersioning());
         $post->refresh();
@@ -309,12 +342,11 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function post_version_soft_delete_and_restore()
+    public function versions_can_be_soft_delete_and_restore()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
         $this->assertCount(1, $post->versions);
-        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
         $this->assertDatabaseCount('versions', 1);
 
         // version2
@@ -322,7 +354,6 @@ class FeatureTest extends TestCase
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
-        $this->assertSame($post->only('title'), $post->lastVersion->contents);
         $this->assertDatabaseCount('versions', 2);
 
         // version3
@@ -332,13 +363,14 @@ class FeatureTest extends TestCase
 
         // soft delete
         $post->refresh();
+
         // first
         $lastVersion = $post->lastVersion;
         $post->removeVersion($lastVersion->id);
         $this->assertDatabaseCount('versions', 3);
         $this->assertCount(1, $post->getThrashedVersions());
 
-        // second delete
+        // delete second version
         $post->refresh();
         $lastVersion = $post->lastVersion;
         $post->removeVersion($lastVersion->id);
@@ -354,12 +386,29 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function post_version_forced_delete()
+    public function init_version_should_include_all_attributes()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
         $this->assertCount(1, $post->versions);
-        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertDatabaseCount('versions', 1);
+
+        $this->assertSame($post->id, $post->lastVersion->contents['id']);
+        $this->assertSame($post->user_id, $post->lastVersion->contents['user_id']);
+        $this->assertSame($post->title, $post->lastVersion->contents['title']);
+        $this->assertSame($post->content, $post->lastVersion->contents['content']);
+        $this->assertSame($post->created_at->format('Y-m-d H:i:s'), $post->lastVersion->contents['created_at']);
+        $this->assertSame($post->updated_at->format('Y-m-d H:i:s'), $post->lastVersion->contents['updated_at']);
+    }
+
+    /**
+     * @test
+     */
+    public function versions_can_be_force_deleted()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        $this->assertCount(1, $post->versions);
         $this->assertDatabaseCount('versions', 1);
 
         // version2
@@ -367,7 +416,6 @@ class FeatureTest extends TestCase
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
-        $this->assertSame($post->only('title'), $post->lastVersion->contents);
         $this->assertDatabaseCount('versions', 2);
 
         // version3
@@ -414,10 +462,8 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_initial_version_when_enabled()
+    public function it_creates_initial_version_if_not_exists()
     {
-        Config::set('versionable.keep_original_version', true);
-
         $post = new Post;
 
         Post::withoutVersion(function () use (&$post) {
@@ -433,26 +479,5 @@ class FeatureTest extends TestCase
         $this->assertCount(2, $post->versions);
         $this->assertSame('version1', $post->firstVersion->contents['title']);
         $this->assertSame('version2', $post->lastVersion->contents['title']);
-    }
-
-    /**
-     * @test
-     */
-    public function it_doesnt_create_initial_version_when_disabled()
-    {
-        $post = new Post;
-
-        Post::withoutVersion(function () use (&$post) {
-            $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
-        });
-
-        $this->assertCount(0, $post->versions);
-
-        $post->update(['title' => 'version2']);
-
-        $post->refresh();
-
-        $this->assertCount(1, $post->versions);
-        $this->assertNotSame('version1', $post->firstVersion->contents['title']);
     }
 }

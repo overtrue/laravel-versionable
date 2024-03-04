@@ -6,8 +6,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     public function boot()
     {
-        \config('versionable.migrations') && $this->loadMigrationsFrom(__DIR__.'/../migrations');
-
         $this->publishes([
             __DIR__.'/../migrations' => \database_path('migrations'),
         ], 'migrations');

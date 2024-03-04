@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class MakeUserNullable extends Migration
+return new class() extends Migration
 {
     /**
      * Run the migrations.
@@ -29,4 +29,4 @@ class MakeUserNullable extends Migration
             $table->unsignedBigInteger(config('versionable.user_foreign_key', 'user_id'))->nullable(false)->change();
         });
     }
-}
+};
