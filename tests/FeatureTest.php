@@ -400,7 +400,7 @@ class FeatureTest extends TestCase
      */
     public function it_creates_initial_version_when_enabled()
     {
-        Config::set('versionable.create_initial_versions', true);
+        Config::set('versionable.keep_original_version', true);
 
         $post = new Post;
 

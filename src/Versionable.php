@@ -23,7 +23,7 @@ trait Versionable
 
     public static function bootVersionable()
     {
-        if (config('versionable.create_initial_versions')) {
+        if (config('versionable.keep_original_version')) {
             static::updating(
                 function (Model $model) {
                     if ($model->versions()->count() === 0) {

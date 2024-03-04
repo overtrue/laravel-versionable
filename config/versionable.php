@@ -11,7 +11,7 @@ return [
      * Create the initial versions of model. If you're installing this on an existing application,
      * you may want to create a version of the current model.
      */
-    'create_initial_versions' => false,
+    'keep_original_version' => false,
 
     /*
      * Keep versions, you can redefine in target model.
