@@ -14,11 +14,6 @@ return [
     'create_initial_versions' => false,
 
     /*
-     * If true, it will record only changed attributes.
-     */
-    'record_only_changed_attributes' => true,
-
-    /*
      * Keep versions, you can redefine in target model.
      * Default: 0 - Keep all versions.
      */

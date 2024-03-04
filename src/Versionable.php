@@ -71,10 +71,6 @@ trait Versionable
     public function createVersion(array $attributes = [], $time = null): ?Version
     {
         if ($this->shouldBeVersioning() || ! empty($attributes)) {
-            if (config('versionable.record_only_changed_attributes') === false) {
-                $attributes = $this->only($this->getVersionable());
-            }
-
             return tap(Version::createForModel($this, $attributes, $time), function () {
                 $this->removeOldVersions($this->getKeepVersionsCount());
             });
