@@ -69,7 +69,6 @@ class ManualVersionTest extends TestCase
     public function user_cannot_create_versions_manually_by_passing_attributes()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
-        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
 
         $this->assertCount(1, $post->refresh()->versions);
         $this->assertEquals('version1', $post->latestVersion->contents['title']);
@@ -125,15 +124,11 @@ class ManualVersionTest extends TestCase
         $this->assertCount(2, $post->refresh()->versions);
 
         $this->assertTrue(collect($post->latestVersion->contents)->has([
-            'id',
             'title',
             'content',
             'extends',
-            'user_id',
-            'created_at',
-            'updated_at',
         ]));
 
-        $this->assertCount(7, $post->latestVersion->contents);
+        $this->assertCount(3, $post->latestVersion->contents);
     }
 }

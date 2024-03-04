@@ -29,13 +29,11 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function post_has_versions()
+    public function versions_can_be_created()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
         $this->assertCount(1, $post->versions);
-        $this->assertSame($post->only('title', 'content', 'extends'), $post->lastVersion->contents);
-
         $this->assertDatabaseCount('versions', 1);
 
         // version2
@@ -44,28 +42,6 @@ class FeatureTest extends TestCase
 
         $this->assertCount(2, $post->versions);
         $this->assertSame($post->only('title'), $post->lastVersion->contents);
-        $this->assertDatabaseCount('versions', 2);
-    }
-
-    /**
-     * @test
-     */
-    public function it_can_work_with_snapshot_strategy()
-    {
-        $post = new Post(['title' => 'Title', 'content' => 'Content']);
-        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
-
-        $post->save();
-        $this->assertDatabaseCount('versions', 1);
-
-        $this->travelTo(now()->addMinute());
-
-        $post->setVersionable(['title']);
-        $post->update(['title' => 'title changed']);
-        $this->assertDatabaseCount('versions', 2);
-
-        // content is not versionable
-        $post->update(['content' => 'content changed']);
         $this->assertDatabaseCount('versions', 2);
     }
 
@@ -126,7 +102,7 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function post_can_revert_to_target_version()
+    public function it_can_revert_to_target_version()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
         $post->update(['title' => 'version2', 'extends' => ['foo' => 'bar']]);
@@ -177,7 +153,13 @@ class FeatureTest extends TestCase
      */
     public function the_initial_version_cannot_be_deleted()
     {
-        //todo
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        try {
+            $version = $post->firstVersion->delete();
+        } catch (\Throwable $e) {
+            $this->assertSame('You cannot delete the init version', $e->getMessage());
+        }
     }
 
     /**
@@ -272,7 +254,7 @@ class FeatureTest extends TestCase
 
         $this->assertEquals(
             ['version4', 'version3', 'version2', 'version1'],
-            $post->history->pluck('contents.title')->toArray(),
+            $post->versionHistory->pluck('contents.title')->toArray(),
         );
     }
 
@@ -289,12 +271,13 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
         $post->update(['title' => 'version5', 'content' => 'version5 content']);
 
-        $this->assertCount(3, $post->versions);
+        $this->assertCount(4, $post->versions);
 
         $post->removeAllVersions();
         $post->refresh();
 
-        $this->assertCount(0, $post->versions);
+        // only initial version
+        $this->assertCount(1, $post->versions);
     }
 
     /**

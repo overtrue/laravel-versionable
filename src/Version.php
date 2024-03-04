@@ -5,6 +5,7 @@ namespace Overtrue\LaravelVersionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -32,7 +33,7 @@ class Version extends Model
      * @var array
      */
     protected $casts = [
-        'contents' => 'array',
+        'contents' => 'json',
     ];
 
     protected static function booted()
@@ -97,22 +98,31 @@ class Version extends Model
 
     public function revertWithoutSaving(): ?Model
     {
+        $original = $this->versionable->getRawOriginal();
         switch ($this->versionable->getVersionStrategy()) {
             case VersionStrategy::DIFF:
                 // v1 + ... + vN
                 $versionsBeforeThis = $this->previousVersions()->orderOldestFirst()->get();
                 foreach ($versionsBeforeThis as $version) {
-                    $this->forceFill($version->contents);
+                    if (! empty($version->contents)) {
+                        $this->versionable->setRawAttributes(array_merge($original, $version->contents));
+                    }
                 }
                 break;
             case VersionStrategy::SNAPSHOT:
                 // v1 + vN
                 /** @var \Overtrue\LaravelVersionable\Version $initVersion */
                 $initVersion = $this->versionable->versions()->first();
-                $this->forceFill($initVersion->contents);
+                if (! empty($initVersion->contents)) {
+                    $this->versionable->setRawAttributes(array_merge($original, $initVersion->contents));
+                }
         }
 
-        return $this->versionable->forceFill($this->contents);
+        if (! empty($this->contents)) {
+            $this->versionable->setRawAttributes(array_merge($original, $this->contents));
+        }
+
+        return $this->versionable;
     }
 
     public function scopeOrderOldestFirst(Builder $query): Builder
@@ -125,7 +135,7 @@ class Version extends Model
         return $query->latest()->latest('id');
     }
 
-    public function previousVersions(): ?static
+    public function previousVersions(): MorphMany
     {
         return $this->versionable->versionHistory()
             ->where(function ($query) {

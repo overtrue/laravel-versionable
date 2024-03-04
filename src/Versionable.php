@@ -79,7 +79,7 @@ trait Versionable
 
     public function createInitialVersion(Model $model): Version
     {
-        $refreshedModel = static::query()->find($model->getKey());
+        $refreshedModel = static::query()->findOrFail($model->getKey());
 
         return tap(Version::createForModel($refreshedModel, $refreshedModel->getAttributes(), $refreshedModel->updated_at), function (Version $version) {
             $version->forceFill(['is_initial' => true])->saveQuietly();
@@ -153,7 +153,7 @@ trait Versionable
             return;
         }
 
-        $this->versionHistory()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
+        $this->versionHistory()->where('is_initial', false)->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
     public function removeVersions(array $ids)
@@ -162,7 +162,7 @@ trait Versionable
             return $this->forceRemoveVersions($ids);
         }
 
-        return $this->versions()->find($ids)->each->delete();
+        return $this->versions()->where('is_initial', false)->find($ids)->each->delete();
     }
 
     public function removeVersion(int $id)
@@ -180,7 +180,7 @@ trait Versionable
             $this->forceRemoveAllVersions();
         }
 
-        $this->versions->each->delete();
+        $this->versions->where('is_initial', false)->each->delete();
     }
 
     public function forceRemoveVersion(int $id)
