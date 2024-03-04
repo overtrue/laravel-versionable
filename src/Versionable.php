@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Carbon;
 
+/**
+ * @property \Illuminate\Database\Eloquent\Collection<\Overtrue\LaravelVersionable\Version> $versions
+ */
 trait Versionable
 {
     protected static bool $versioning = true;
@@ -21,19 +24,24 @@ trait Versionable
     // Model MUST extend \Overtrue\LaravelVersionable\Version
     //public string $versionModel;
 
-    public static function bootVersionable()
+    public static function bootVersionable(): void
     {
         if (config('versionable.keep_original_version')) {
             static::updating(
                 function (Model $model) {
+                    /** @var \Overtrue\LaravelVersionable\Versionable $model */
                     if ($model->versions()->count() === 0) {
-                        $existingModel = self::find($model->id);
+                        $existingModel = static::query()->find($model->getKey());
 
                         Version::createForModel($existingModel, $existingModel->only($existingModel->getVersionable()));
                     }
                 }
             );
         }
+
+        static::created(function(Model $model){
+            Version::createForModel($model, $model->only($model->getVersionable()));
+        });
 
         static::saved(
             function (Model $model) {
@@ -63,7 +71,7 @@ trait Versionable
     }
 
     /**
-     * @param  string|DateTimeInterface|null  $time
+     * @param  string|\DateTimeInterface|null  $time
      * @return ?Version
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
@@ -84,7 +92,15 @@ trait Versionable
         return $this->morphMany($this->getVersionModel(), 'versionable');
     }
 
+    /**
+     * @deprecated Please use `versionHistory` instead.
+     */
     public function history(): MorphMany
+    {
+        return $this->versions()->orderLatestFirst();
+    }
+
+    public function versionHistory()
     {
         return $this->versions()->orderLatestFirst();
     }
@@ -107,15 +123,15 @@ trait Versionable
     /**
      * Get the version for a specific time.
      *
-     * @param  string|DateTimeInterface|null  $time
-     * @param  DateTimeZone|string|null  $tz
-     * @return static
+     * @param  string|\DateTimeInterface|null  $time
+     * @param  \DateTimeZone|string|null  $tz
+     * @return ?\Overtrue\LaravelVersionable\Version
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
      */
     public function versionAt($time = null, $tz = null): ?Version
     {
-        return $this->history()
+        return $this->versionHistory()
             ->where('created_at', '<=', Carbon::parse($time, $tz))
             ->first();
     }
@@ -201,23 +217,23 @@ trait Versionable
         return ! empty($this->getVersionableAttributes());
     }
 
-    public function getVersionableAttributes(array $attributes = []): array
+    public function getVersionableAttributes(array $replacements = []): array
     {
-        $changes = $this->getDirty();
+        $changes = array_merge($this->getDirty(), $replacements);
 
-        if (empty($changes) && empty($attributes)) {
+        if (empty($changes)) {
             return [];
         }
 
         $changes = $this->versionableFromArray($changes);
         $changedKeys = array_keys($changes);
 
-        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && (! empty($changes) || ! empty($attributes))) {
+        if ($this->getVersionStrategy() === VersionStrategy::SNAPSHOT && !empty($changes)) {
             $changedKeys = array_keys($this->getAttributes());
         }
 
         // to keep casts and mutators works, we need to get the updated attributes from the model
-        return \array_merge(array_intersect_key($this->getAttributes(), array_flip($changedKeys)), $attributes);
+        return \array_merge(array_intersect_key($this->getAttributes(), array_flip($changedKeys)), $replacements);
     }
 
     /**
@@ -305,12 +321,12 @@ trait Versionable
         return $attributes;
     }
 
-    public static function getVersioning()
+    public static function getVersioning(): bool
     {
         return static::$versioning;
     }
 
-    public static function withoutVersion(callable $callback)
+    public static function withoutVersion(callable $callback): void
     {
         $lastState = static::$versioning;
 
@@ -321,12 +337,12 @@ trait Versionable
         static::$versioning = $lastState;
     }
 
-    public static function disableVersioning()
+    public static function disableVersioning(): void
     {
         static::$versioning = false;
     }
 
-    public static function enableVersioning()
+    public static function enableVersioning(): void
     {
         static::$versioning = true;
     }

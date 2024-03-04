@@ -2,9 +2,9 @@
 
 namespace Overtrue\LaravelVersionable;
 
-class VersionStrategy
+enum VersionStrategy
 {
-    public const DIFF = 'diff';
-
-    public const SNAPSHOT = 'snapshot';
+    case DIFF; // changed attributes in $versionable
+    case SNAPSHOT; // all attributes in $versionable
+    case ALL; // all attributes of the model
 }

@@ -10,7 +10,7 @@ class Post extends Model
 {
     use Versionable;
 
-    protected $fillable = ['title', 'content', 'user_id', 'extends'];
+    protected $fillable = ['title', 'content', 'user_id', 'extends', 'not_versionable_field'];
 
     protected $versionable = ['title', 'content', 'extends'];
 

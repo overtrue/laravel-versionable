@@ -2,15 +2,21 @@
 
 namespace Overtrue\LaravelVersionable;
 
+use function class_uses;
+use function config;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use function in_array;
+use function tap;
 
 /**
  * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
- * @property array $contents
- * @property int $id
+ * @property array                                          $contents
+ * @property int                                            $id
  */
 class Version extends Model
 {
@@ -25,29 +31,26 @@ class Version extends Model
         'contents' => 'array',
     ];
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|null
-     */
-    public function user()
+    public function user(): ?BelongsTo
     {
-        $useSoftDeletes = \in_array(SoftDeletes::class, \class_uses(\config('versionable.user_model')));
+        $useSoftDeletes = in_array(SoftDeletes::class, class_uses(config('versionable.user_model')));
 
-        return \tap(
+        return tap(
             $this->belongsTo(
-                \config('versionable.user_model'),
-                \config('versionable.user_foreign_key')
+                config('versionable.user_model'),
+                config('versionable.user_foreign_key')
             ),
             fn ($relation) => $useSoftDeletes ? $relation->withTrashed() : $relation
         );
     }
 
-    public function versionable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function versionable(): MorphTo
     {
         return $this->morphTo('versionable');
     }
 
     /**
-     * @param  string|DateTimeInterface|null  $time
+     * @param  string|\DateTimeInterface|null  $time
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
      */
@@ -62,7 +65,7 @@ class Version extends Model
 
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
-        $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
+        $version->{config('versionable.user_foreign_key')} = $model->getVersionUserId();
         $version->contents = $model->getVersionableAttributes($attributes);
 
         if ($time) {

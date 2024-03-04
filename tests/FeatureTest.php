@@ -35,7 +35,7 @@ class FeatureTest extends TestCase
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
         $this->assertCount(1, $post->versions);
-        $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
+        $this->assertSame($post->only('title', 'content', 'extends'), $post->lastVersion->contents);
 
         $this->assertDatabaseCount('versions', 1);
 
@@ -75,11 +75,14 @@ class FeatureTest extends TestCase
      */
     public function post_create_version_with_strategy()
     {
-        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content', 'user_id' => 1234]);
 
+        // strategy is diff
         $this->assertCount(1, $post->versions);
+        // no 'user_id' in version
         $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
 
+        // change strategy to snapshot
         $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
 
         // version2
@@ -101,6 +104,8 @@ class FeatureTest extends TestCase
      */
     public function post_can_revert_to_target_version()
     {
+        \config(['versionable.keep_original_version' => true]);
+
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
         $post->update(['title' => 'version2', 'extends' => ['foo' => 'bar']]);
         $post->update(['title' => 'version3', 'content' => 'version3 content', 'extends' => ['name' => 'overtrue']]);
@@ -112,6 +117,7 @@ class FeatureTest extends TestCase
 
         $this->assertSame('version1', $post->title);
         $this->assertSame('version1 content', $post->content);
+        $this->assertNull($post->extends);
 
         $post->refresh();
 
@@ -132,6 +138,16 @@ class FeatureTest extends TestCase
         // title and content are updated
         $this->assertSame('version3', $post->title);
         $this->assertSame('version3 content', $post->content);
+        $this->assertSame(['name' => 'overtrue'], $post->extends);
+
+        // revert version 4
+        $post->revertToVersion(4);
+        $post->refresh();
+
+        // title and content are updated
+        $this->assertSame('version4', $post->title);
+        $this->assertSame('version4 content', $post->content);
+        $this->assertSame(['name' => 'overtrue'], $post->extends);
     }
 
     /**

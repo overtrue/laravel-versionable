@@ -192,6 +192,5 @@ class DiffTest extends TestCase
             ],
             (new Diff($new, $old))->toArray()
         );
-
     }
 }
