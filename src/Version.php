@@ -99,7 +99,7 @@ class Version extends Model
 
     public function previousVersion(): ?static
     {
-        return $this->versionable->history()
+        return $this->versionable->versionHistory()
             ->where(function ($query) {
                 $query->where('created_at', '<', $this->created_at)
                     ->orWhere(function ($query) {

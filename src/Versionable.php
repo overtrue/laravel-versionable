@@ -162,7 +162,7 @@ trait Versionable
             return;
         }
 
-        $this->history()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
+        $this->versionHistory()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
     public function removeVersions(array $ids)
