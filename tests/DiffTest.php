@@ -137,23 +137,23 @@ class DiffTest extends TestCase
             'a' => 'nested content version 1',
             'b' => [
                 -44.061269,
-                "lorem",
-                "ipsum dolor sit amet",
+                'lorem',
+                'ipsum dolor sit amet',
             ],
             'c' => [
                 'c1' => [
                     'c11' => -44.061269,
-                    'c12' => 42.061269
+                    'c12' => 42.061269,
                 ],
-                'c2' => "lorem",
-                'c3' => "ipsum dolor sit amet",
-            ]
+                'c2' => 'lorem',
+                'c3' => 'ipsum dolor sit amet',
+            ],
         ];
         $old = new Version([
             'contents' => [
                 'title' => 'version1',
-                'content' => $oldContent
-            ]
+                'content' => $oldContent,
+            ],
         ]);
 
         $newContent = [
@@ -161,38 +161,37 @@ class DiffTest extends TestCase
             'c' => [
                 'c1' => [
                     'c11' => -46.061269,
-                    'c12' => 142.061269
+                    'c12' => 142.061269,
                 ],
-                'c2' => "dolor",
-                'c3' => "sit amet",
-            ]
+                'c2' => 'dolor',
+                'c3' => 'sit amet',
+            ],
         ];
         $new = new Version([
             'contents' => [
                 'title' => 'version2',
                 'content' => $newContent,
-                'user_id' => 123
-            ]
+                'user_id' => 123,
+            ],
         ]);
 
         $this->assertSame(
             [
                 'title' => [
                     'old' => 'version1',
-                    'new' => 'version2'
+                    'new' => 'version2',
                 ],
                 'content' => [
                     'old' => $oldContent,
-                    'new' => $newContent
+                    'new' => $newContent,
                 ],
                 'user_id' => [
                     'old' => null,
-                    'new' => 123
+                    'new' => 123,
                 ],
             ],
             (new Diff($new, $old))->toArray()
         );
-
 
     }
 }

@@ -41,19 +41,13 @@ class Version extends Model
         );
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
     public function versionable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo('versionable');
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $attributes
      * @param  string|DateTimeInterface|null  $time
-     * @return \Overtrue\LaravelVersionable\Version
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
      */
@@ -71,7 +65,7 @@ class Version extends Model
         $version->{\config('versionable.user_foreign_key')} = $model->getVersionUserId();
         $version->contents = $model->getVersionableAttributes($attributes);
 
-        if ($time) { 
+        if ($time) {
             $version->created_at = Carbon::parse($time);
         }
 
@@ -127,9 +121,9 @@ class Version extends Model
             ->first();
     }
 
-    public function diff(Version $toVersion = null, array $differOptions = [], array $renderOptions = []): Diff
+    public function diff(?Version $toVersion = null, array $differOptions = [], array $renderOptions = []): Diff
     {
-        if (!$toVersion) {
+        if (! $toVersion) {
             $toVersion = $this->previousVersion() ?? new static();
         }
 

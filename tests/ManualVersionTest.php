@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use Illuminate\Support\Carbon;
 use Overtrue\LaravelVersionable\VersionStrategy;
 
 class ManualVersionTest extends TestCase
