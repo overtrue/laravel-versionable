@@ -4,7 +4,6 @@ namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Support\Arr;
 use Jfcherng\Diff\DiffHelper;
-use Rogervila\ArrayDiffMultidimensional;
 
 /**
  * @see https://github.com/jfcherng/php-diff#example
