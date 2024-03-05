@@ -2,6 +2,7 @@
 
 namespace Overtrue\LaravelVersionable;
 
+use Illuminate\Support\Arr;
 use Jfcherng\Diff\DiffHelper;
 use Rogervila\ArrayDiffMultidimensional;
 
@@ -68,8 +69,8 @@ class Diff
             $renderOptions = $this->renderOptions;
         }
 
-        $fromContents = $this->fromVersion->contents;
-        $toContents = $this->toVersion->contents;
+        $oldContents = $this->fromVersion->contents;
+        $newContents = $this->toVersion->contents;
 
         $diff = [];
         $createDiff = function ($key, $old, $new) use (&$diff, $renderer, $differOptions, $renderOptions) {
@@ -82,11 +83,11 @@ class Diff
             }
         };
 
-        foreach (ArrayDiffMultidimensional::compare($fromContents, $toContents) as $key => $value) {
-            $createDiff($key, $toContents[$key] ?? null, $value);
+        foreach ($oldContents as $key => $value) {
+            $createDiff($key, Arr::get($newContents, $key), Arr::get($oldContents, $key));
         }
 
-        foreach (array_diff_key($fromContents, $toContents) as $key => $value) {
+        foreach (array_diff_key($oldContents, $newContents) as $key => $value) {
             $createDiff($key, null, $value);
         }
 
