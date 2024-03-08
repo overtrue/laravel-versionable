@@ -97,7 +97,7 @@ trait Versionable
     }
 
     /**
-     * @deprecated will remove at 5.0
+     * @deprecated will remove at 6.0
      */
     public function history()
     {
@@ -295,8 +295,12 @@ trait Versionable
     /**
      * @throws \Exception
      */
-    public function setVersionStrategy(VersionStrategy $strategy): static
+    public function setVersionStrategy(VersionStrategy|string $strategy): static
     {
+        if (is_string($strategy)) {
+            $strategy = VersionStrategy::tryFrom(strtoupper($strategy));
+        }
+
         if (! \property_exists($this, 'versionStrategy')) {
             throw new \Exception('Property $versionStrategy not exist.');
         }
