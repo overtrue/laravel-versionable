@@ -1,18 +1,15 @@
-<h1 align="center"> laravel-versionable </h1>
+# Laravel Versionable
 
-<p align="center"> ⏱️ Make Laravel model versionable.</p>
+[![Build Status](https://github.com/overtrue/laravel-versionable/workflows/CI/badge.svg)](https://github.com/overtrue/laravel-versionable/actions)
+[![Latest Stable Version](https://poser.pugx.org/overtrue/laravel-versionable/v/stable.svg)](https://packagist.org/packages/overtrue/laravel-versionable)
+[![Latest Unstable Version](https://poser.pugx.org/overtrue/laravel-versionable/v/unstable.svg)](https://packagist.org/packages/overtrue/laravel-versionable)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master)
+[![Total Downloads](https://poser.pugx.org/overtrue/laravel-versionable/downloads)](https://packagist.org/packages/overtrue/laravel-versionable)
+[![License](https://poser.pugx.org/overtrue/laravel-versionable/license)](https://packagist.org/packages/overtrue/laravel-versionable)
 
-<p align="center">
-<a href="https://github.com/overtrue/laravel-versionable/actions"><img src="https://github.com/overtrue/laravel-versionable/workflows/CI/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/v/unstable.svg" alt="Latest Unstable Version"></a>
-<a href="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master"><img src="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a>
-<a href="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master"><img src="https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/coverage.png?b=master" alt="Code Coverage"></a>
-<a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/downloads" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/license" alt="License"></a>
-</p>
-
-It's a minimalist way to make your model support version history, and it's very simple to revert to the specified version.
+It's a minimalist way to make your model support version history, and it's very simple to revert to the specified
+version.
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me-button-s.svg?raw=true)](https://github.com/sponsors/overtrue)
 
@@ -23,11 +20,11 @@ It's a minimalist way to make your model support version history, and it's very 
 
 ## Features
 
--   Keep the specified number of versions.
--   Whitelist and blacklist for versionable attributes.
--   Easily revert to the specified version.
--   Record only changed attributes.
--   Easy to customize.
+- Keep the specified number of versions.
+- Whitelist and blacklist for versionable attributes.
+- Easily revert to the specified version.
+- Record only changed attributes.
+- Easy to customize.
 
 ## Installing
 
@@ -154,8 +151,10 @@ Post::withoutVersion(function () use ($post) {
 
 You can set the following different version policies through property `protected $versionStrategy`:
 
--   `Overtrue\LaravelVersionable\VersionStrategy::DIFF` - Version content will only contain changed attributes (default strategy).
--   `Overtrue\LaravelVersionable\VersionStrategy::SNAPSHOT` - Version content will contain all versionable attribute values.
+- `Overtrue\LaravelVersionable\VersionStrategy::DIFF` - Version content will only contain changed attributes (default
+  strategy).
+- `Overtrue\LaravelVersionable\VersionStrategy::SNAPSHOT` - Version content will contain all versionable attribute
+  values.
 
 ### Show diff between the two versions
 
@@ -163,9 +162,11 @@ You can set the following different version policies through property `protected
 $diff = $post->getVersion(1)->diff($post->getVersion(2));
 ```
 
-`$diff` is a object `Overtrue\LaravelVersionable\Diff`, it based on [jfcherng/php-diff](https://github.com/jfcherng/php-diff).
+`$diff` is a object `Overtrue\LaravelVersionable\Diff`, it based
+on [jfcherng/php-diff](https://github.com/jfcherng/php-diff).
 
-You can render the diff to [many formats](https://github.com/jfcherng/php-diff#introduction), and all formats result will be like follows:
+You can render the diff to [many formats](https://github.com/jfcherng/php-diff#introduction), and all formats result
+will be like follows:
 
 ```php
 [
@@ -208,14 +209,15 @@ toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
 
 > **Note**
 >
-> `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
+> `$differOptions` and `$renderOptions` are optional, you can set them following the README
+> of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
-### Using custom version model 
+### Using custom version model
 
 You can define `$versionModel` in a model, that used this trait to change the model(table) for versions
 
 > **Note**
-> 
+>
 > Model MUST extend class `\Overtrue\LaravelVersionable\Version`;
 
 ```php
@@ -264,7 +266,8 @@ You can contribute in one of three ways:
 2. Answer questions or fix bugs on the [issue tracker](https://github.com/overtrue/laravel-versionable/issues).
 3. Contribute new features or update the wiki.
 
-_The code contribution process is not very formal. You just need to make sure that you follow the PSR-0, PSR-1, and PSR-2 coding guidelines. Any new code contributions must be accompanied by unit tests where applicable._
+_The code contribution process is not very formal. You just need to make sure that you follow the PSR-0, PSR-1, and
+PSR-2 coding guidelines. Any new code contributions must be accompanied by unit tests where applicable._
 
 ## License
 
