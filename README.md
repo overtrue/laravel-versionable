@@ -35,16 +35,10 @@ It's a minimalist way to make your model support version history, and it's very 
 composer require overtrue/laravel-versionable -vvv
 ```
 
-Optional, you can publish the config file:
+First, publish the config file and migrations:
 
 ```bash
-php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=config
-```
-
-And if you want to custom the migration of the versions table, you can publish the migration file to your database path:
-
-```bash
-php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=migrations
+php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" 
 ```
 
 Then run this command to create a database migration:
