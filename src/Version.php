@@ -81,7 +81,9 @@ class Version extends Model
 
     public function revertWithoutSaving(): ?Model
     {
-        return $this->versionable->forceFill($this->contents);
+        $original = $this->versionable->getRawOriginal();
+
+        return $this->versionable->setRawAttributes(array_merge($original, $this->contents));
     }
 
     public function scopeOrderOldestFirst(Builder $query): Builder

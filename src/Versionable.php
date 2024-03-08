@@ -23,17 +23,15 @@ trait Versionable
 
     public static function bootVersionable()
     {
-        if (config('versionable.keep_original_version')) {
-            static::updating(
-                function (Model $model) {
-                    if ($model->versions()->count() === 0) {
-                        $existingModel = self::find($model->id);
+        static::updating(
+            function (Model $model) {
+                if (static::$versioning && $model->versions()->count() === 0) {
+                    $existingModel = self::find($model->id);
 
-                        Version::createForModel($existingModel, $existingModel->only($existingModel->getVersionable()));
-                    }
+                    Version::createForModel($existingModel, $existingModel->only($existingModel->getVersionable()));
                 }
-            );
-        }
+            }
+        );
 
         static::saved(
             function (Model $model) {

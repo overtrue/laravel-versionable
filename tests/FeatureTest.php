@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
 use Overtrue\LaravelVersionable\Diff;
 use Overtrue\LaravelVersionable\Version;
 use Overtrue\LaravelVersionable\VersionStrategy;
@@ -398,10 +397,8 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_initial_version_when_enabled()
+    public function it_creates_initial_version()
     {
-        Config::set('versionable.keep_original_version', true);
-
         $post = new Post;
 
         Post::withoutVersion(function () use (&$post) {
@@ -417,26 +414,5 @@ class FeatureTest extends TestCase
         $this->assertCount(2, $post->versions);
         $this->assertSame('version1', $post->firstVersion->contents['title']);
         $this->assertSame('version2', $post->lastVersion->contents['title']);
-    }
-
-    /**
-     * @test
-     */
-    public function it_doesnt_create_initial_version_when_disabled()
-    {
-        $post = new Post;
-
-        Post::withoutVersion(function () use (&$post) {
-            $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
-        });
-
-        $this->assertCount(0, $post->versions);
-
-        $post->update(['title' => 'version2']);
-
-        $post->refresh();
-
-        $this->assertCount(1, $post->versions);
-        $this->assertNotSame('version1', $post->firstVersion->contents['title']);
     }
 }
