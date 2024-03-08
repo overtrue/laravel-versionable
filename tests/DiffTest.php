@@ -16,6 +16,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => ['old' => 'version1', 'new' => 'version1'],
                 'content' => ['old' => 'version1 content', 'new' => 'version2 content'],
                 'user_id' => ['old' => null, 'new' => 123],
             ],
@@ -27,6 +28,7 @@ class DiffTest extends TestCase
         $new = new Version(['contents' => ['title' => 'version1', 'user_id' => 123]]);
         $this->assertSame(
             [
+                'title' => ['old' => 'version1', 'new' => 'version1'],
                 'content' => ['old' => null, 'new' => 'version1 content'],
             ],
             (new Diff($old, $new))->toArray()
@@ -40,6 +42,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Context'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Context'),
             ],
@@ -54,6 +57,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Unified'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Unified'),
             ],
@@ -68,6 +72,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'JsonText'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'JsonText'),
             ],
@@ -82,6 +87,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Combined'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Combined'),
             ],
@@ -96,6 +102,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'Inline'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'Inline'),
             ],
@@ -110,6 +117,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '[]',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'JsonHtml'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'JsonHtml'),
             ],
@@ -124,6 +132,7 @@ class DiffTest extends TestCase
 
         $this->assertSame(
             [
+                'title' => '',
                 'content' => DiffHelper::calculate('version1 content', 'version2 content', 'SideBySide'),
                 'user_id' => DiffHelper::calculate(json_encode(null), json_encode(123), 'SideBySide'),
             ],
