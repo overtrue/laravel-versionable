@@ -79,9 +79,16 @@ trait Versionable
 
     public function createInitialVersion(Model $model): Version
     {
+        /** @var \Overtrue\LaravelVersionable\Versionable|Model $refreshedModel */
         $refreshedModel = static::query()->findOrFail($model->getKey());
 
-        return Version::createForModel($refreshedModel, $refreshedModel->getAttributes(), $refreshedModel->updated_at);
+        /**
+         * As initial version should include all $versionable fields,
+         * we need to get the latest version from database.
+         */
+        $attributes = $refreshedModel->getSnapshotAttributes();
+
+        return Version::createForModel($refreshedModel, $attributes, $refreshedModel->updated_at);
     }
 
     public function versions(): MorphMany

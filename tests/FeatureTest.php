@@ -55,6 +55,13 @@ class FeatureTest extends TestCase
         // default strategy is diff
         $this->assertCount(1, $post->versions);
 
+        // `title` + `content` + `extends`, `user_id` is not in $versionable
+        $this->assertCount(3, $post->lastVersion->contents);
+        $this->assertArrayHasKey('title', $post->lastVersion->contents);
+        $this->assertArrayHasKey('content', $post->lastVersion->contents);
+        $this->assertArrayHasKey('extends', $post->lastVersion->contents);
+
+
         $post->update(['title' => 'version2', 'content' => 'version2 content', 'user_id' => 1234]);
         $post->refresh();
 
@@ -63,18 +70,17 @@ class FeatureTest extends TestCase
         // 'user_id' is not in $versionable
         $this->assertSame($post->only('title', 'content'), $post->lastVersion->contents);
 
-        // change strategy to snapshot
-        $post->setVersionStrategy(VersionStrategy::SNAPSHOT);
-
         // version3
         $post->update(['title' => 'version3']);
         $post->refresh();
 
         $this->assertCount(3, $post->versions);
+
+        // version 3 only has 'title'
+        $this->assertCount(1, $post->lastVersion->contents);
         $this->assertArrayHasKey('title', $post->lastVersion->contents);
-        $this->assertArrayHasKey('content', $post->lastVersion->contents);
+        $this->assertArrayNotHasKey('content', $post->lastVersion->contents);
         $this->assertSame('version3', $post->lastVersion->contents['title']);
-        $this->assertSame('version2 content', $post->lastVersion->contents['content']);
     }
 
     /**
@@ -93,9 +99,17 @@ class FeatureTest extends TestCase
         $post->refresh();
 
         $this->assertCount(2, $post->versions);
-        $this->assertArrayHasKey('title', $post->lastVersion->contents);
-        $this->assertArrayHasKey('content', $post->lastVersion->contents);
+
+        foreach ($post->getVersionable() as $key) {
+            $this->assertArrayHasKey($key, $post->lastVersion->contents);
+        }
+
+        // only has $versionable attributes
+        $this->assertSame(count($post->getVersionable()), count($post->latestVersion->contents));
+
         $this->assertSame('version2', $post->lastVersion->contents['title']);
+
+        // content not changed but also in $version->contents
         $this->assertSame('version1 content', $post->lastVersion->contents['content']);
     }
 
