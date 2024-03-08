@@ -60,7 +60,7 @@ class Diff
         return $this->render('SideBySide', $differOptions, $renderOptions);
     }
 
-    public function render(string $renderer = null, array $differOptions = [], array $renderOptions = []): array
+    public function render(?string $renderer = null, array $differOptions = [], array $renderOptions = []): array
     {
         if (empty($differOptions)) {
             $differOptions = $this->differOptions;
