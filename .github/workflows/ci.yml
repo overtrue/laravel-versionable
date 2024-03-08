@@ -6,7 +6,7 @@ jobs:
     phpcs:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Setup PHP environment
               uses: shivammathur/setup-php@v2
             - name: Install dependencies
@@ -20,14 +20,14 @@ jobs:
                 dependency_version: ["highest", "lowest"]
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Setup PHP environment
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php_version }}
                   coverage: xdebug
             - name: Install dependencies
-              uses: ramsey/composer-install@v1
+              uses: ramsey/composer-install@v3
               with:
                   dependency-versions: ${{ matrix.dependency_version }}
             - name: PHPUnit check
