@@ -21,4 +21,9 @@ return [
      * The model class for user.
      */
     'user_model' => \App\Models\User::class,
+
+    /**
+     * Use uuid for version id.
+     */
+    'uuid' => false,
 ];

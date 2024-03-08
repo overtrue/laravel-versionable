@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 use function class_uses;
 use function config;
@@ -34,6 +35,15 @@ class Version extends Model
     protected $casts = [
         'contents' => 'json',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function (Version $version) {
+            if (\config('versionable.uuid')) {
+                $version->{$version->getKeyName()} = $version->{$version->getKeyName()} ?: (string) Str::orderedUuid();
+            }
+        });
+    }
 
     public function user(): ?BelongsTo
     {

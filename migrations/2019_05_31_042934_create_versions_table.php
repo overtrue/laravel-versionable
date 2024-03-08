@@ -12,9 +12,13 @@ return new class() extends Migration
     public function up()
     {
         Schema::create('versions', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $uuid = config('versionable.uuid');
+
+            $uuid ? $table->uuid('id')->primary() : $table->bigIncrements('id');
             $table->unsignedBigInteger(config('versionable.user_foreign_key', 'user_id'));
-            $table->morphs('versionable');
+
+            $uuid ? $table->uuidMorphs('versionable') : $table->morphs('versionable');
+
             $table->json('contents')->nullable();
             $table->timestamps();
         });

@@ -61,7 +61,6 @@ class FeatureTest extends TestCase
         $this->assertArrayHasKey('content', $post->lastVersion->contents);
         $this->assertArrayHasKey('extends', $post->lastVersion->contents);
 
-
         $post->update(['title' => 'version2', 'content' => 'version2 content', 'user_id' => 1234]);
         $post->refresh();
 
