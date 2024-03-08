@@ -140,6 +140,79 @@ class DiffTest extends TestCase
         );
     }
 
+    /**
+     * @test
+     */
+    public function it_can_return_the_diff_statistics()
+    {
+        $old = new Version(['contents' => ['title' => 'example title', 'content' => 'example content']]);
+
+        // we are modifying everything
+        $new = new Version(['contents' => ['title' => 'changing the title', 'content' => 'changing the content']]);
+
+        $stats = (new Diff($new, $old))->getStatistics();
+
+        $this->assertIsArray($stats);
+        $this->assertArrayHasKey('inserted', $stats);
+        $this->assertArrayHasKey('deleted', $stats);
+        $this->assertArrayHasKey('unmodified', $stats);
+
+        $this->assertEquals(2, $stats['inserted']); // two new lines inserted
+        $this->assertEquals(2, $stats['deleted']); // two lines deleted
+        $this->assertEquals(0, $stats['unmodified']); // modified everything
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_return_correct_statistics_for_new_line_insertions()
+    {
+        $old = new Version(['contents' => ['title' => 'example title', 'content' => 'example content']]);
+
+        // we are adding two new lines
+        $new = new Version(['contents' => ['content' => "example content\n adding new line \n another new line"]]);
+
+        $stats = (new Diff($new, $old))->getStatistics();
+
+        $this->assertEquals(2, $stats['inserted']); // two new lines inserted
+        $this->assertEquals(0, $stats['deleted']); // no deletions
+        $this->assertEquals(1, $stats['unmodified']); // one line unmodified
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_return_correct_statistics_for_deleted_lines()
+    {
+        $old = new Version(['contents' => ['title' => 'example title', 'content' => "example content\n adding new line \n another new line"]]);
+
+        // we are removing last two lines
+        $new = new Version(['contents' => ['content' => 'example content']]);
+
+        $stats = (new Diff($new, $old))->getStatistics();
+
+        $this->assertEquals(0, $stats['inserted']); // no insertions
+        $this->assertEquals(2, $stats['deleted']); // two lines deleted
+        $this->assertEquals(1, $stats['unmodified']); // one line unmodified
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_return_correct_statistics_for_unmodified_lines()
+    {
+        $old = new Version(['contents' => ['title' => 'example title', 'content' => "example content\n adding new line \n another new line"]]);
+
+        // we are just removing the last line
+        $new = new Version(['contents' => ['content' => "example content\n adding new line "]]);
+
+        $stats = (new Diff($new, $old))->getStatistics();
+
+        $this->assertEquals(0, $stats['inserted']); // no insertions
+        $this->assertEquals(1, $stats['deleted']); // one line deleted
+        $this->assertEquals(2, $stats['unmodified']); // two lines unmodified
+    }
+
     public function test_diff_nested_array_to_array()
     {
         $oldContent = [

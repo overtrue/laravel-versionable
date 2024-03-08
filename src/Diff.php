@@ -3,6 +3,8 @@
 namespace Overtrue\LaravelVersionable;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Jfcherng\Diff\Differ;
 use Jfcherng\Diff\DiffHelper;
 
 /**
@@ -91,5 +93,35 @@ class Diff
         }
 
         return $diff;
+    }
+
+    public function getStatistics(array $differOptions = []): array
+    {
+        if (empty($differOptions)) {
+            $differOptions = $this->differOptions;
+        }
+
+        $oldContents = $this->fromVersion->contents;
+        $newContents = $this->toVersion->contents;
+
+        $diffStats = new Collection;
+
+        foreach ($oldContents as $key => $value) {
+            if ($newContents[$key] !== $oldContents[$key]) {
+                $diffStats->push(
+                    (new Differ(
+                        explode("\n", $newContents[$key]),
+                        explode("\n", $oldContents[$key]),
+                    ))->getStatistics()
+                );
+            }
+        }
+
+        return [
+            'inserted' => $diffStats->sum('inserted'),
+            'deleted' => $diffStats->sum('deleted'),
+            'unmodified' => $diffStats->sum('unmodified'),
+            'changedRatio' => $diffStats->sum('changedRatio'),
+        ];
     }
 }
