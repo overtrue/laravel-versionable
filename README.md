@@ -12,7 +12,7 @@
 <a href="https://packagist.org/packages/overtrue/laravel-versionable"><img src="https://poser.pugx.org/overtrue/laravel-versionable/license" alt="License"></a>
 </p>
 
-It's a minimalist way to make your model support version history, and it's very simple to roll back to the specified version.
+It's a minimalist way to make your model support version history, and it's very simple to revert to the specified version.
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me-button-s.svg?raw=true)](https://github.com/sponsors/overtrue)
 
