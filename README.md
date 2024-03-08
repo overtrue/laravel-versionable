@@ -4,7 +4,6 @@
 [![Latest Stable Version](https://poser.pugx.org/overtrue/laravel-versionable/v/stable.svg)](https://packagist.org/packages/overtrue/laravel-versionable)
 [![Latest Unstable Version](https://poser.pugx.org/overtrue/laravel-versionable/v/unstable.svg)](https://packagist.org/packages/overtrue/laravel-versionable)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/overtrue/laravel-versionable/?branch=master)
 [![Total Downloads](https://poser.pugx.org/overtrue/laravel-versionable/downloads)](https://packagist.org/packages/overtrue/laravel-versionable)
 [![License](https://poser.pugx.org/overtrue/laravel-versionable/license)](https://packagist.org/packages/overtrue/laravel-versionable)
 
