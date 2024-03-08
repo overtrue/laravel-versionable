@@ -29,14 +29,14 @@ trait Versionable
     {
         static::created(function (Model $model) {
             if (static::$versioning) {
-                // init version should include all fields, not only $versionable?
+                // init version should include all $versionable fields.
                 /** @var \Overtrue\LaravelVersionable\Versionable|Model $model */
                 $model->createInitialVersion($model);
             }
         });
 
         static::updating(function (Model $model) {
-            // ensure the initial version exists when updating
+            // ensure the initial version exists before updating
             /** @var \Overtrue\LaravelVersionable\Versionable $model */
             if (static::$versioning && $model->versions()->count() === 0) {
                 $model->createInitialVersion($model);
@@ -81,9 +81,7 @@ trait Versionable
     {
         $refreshedModel = static::query()->findOrFail($model->getKey());
 
-        return tap(Version::createForModel($refreshedModel, $refreshedModel->getAttributes(), $refreshedModel->updated_at), function (Version $version) {
-            $version->forceFill(['is_initial' => true])->saveQuietly();
-        });
+        return Version::createForModel($refreshedModel, $refreshedModel->getAttributes(), $refreshedModel->updated_at);
     }
 
     public function versions(): MorphMany
@@ -91,9 +89,22 @@ trait Versionable
         return $this->morphMany($this->getVersionModel(), 'versionable');
     }
 
-    public function versionHistory()
+    /**
+     * @deprecated will remove at 5.0
+     */
+    public function history()
+    {
+        return $this->latestVersions();
+    }
+
+    public function latestVersions()
     {
         return $this->versions()->orderLatestFirst();
+    }
+
+    public function oldestVersions()
+    {
+        return $this->versions()->orderOldestFirst();
     }
 
     public function lastVersion(): MorphOne
@@ -122,7 +133,7 @@ trait Versionable
      */
     public function versionAt($time = null, $tz = null): ?Version
     {
-        return $this->versionHistory()
+        return $this->latestVersions()
             ->where('created_at', '<=', Carbon::parse($time, $tz))
             ->first();
     }
@@ -153,7 +164,7 @@ trait Versionable
             return;
         }
 
-        $this->versionHistory()->where('is_initial', false)->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
+        $this->latestVersions()->skip($keep)->take(PHP_INT_MAX)->get()->each->delete();
     }
 
     public function removeVersions(array $ids)
@@ -162,7 +173,7 @@ trait Versionable
             return $this->forceRemoveVersions($ids);
         }
 
-        return $this->versions()->where('is_initial', false)->find($ids)->each->delete();
+        return $this->versions()->find($ids)->each->delete();
     }
 
     public function removeVersion(int $id)
@@ -180,7 +191,7 @@ trait Versionable
             $this->forceRemoveAllVersions();
         }
 
-        $this->versions->where('is_initial', false)->each->delete();
+        $this->versions->each->delete();
     }
 
     public function forceRemoveVersion(int $id)
@@ -303,6 +314,9 @@ trait Versionable
         return config('versionable.keep_versions', 0);
     }
 
+    /**
+     * @deprecated will remove at 5.0
+     */
     public function versionableFromArray(array $attributes): array
     {
         if (count($this->getVersionable()) > 0) {

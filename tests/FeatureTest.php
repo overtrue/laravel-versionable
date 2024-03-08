@@ -151,20 +151,6 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function the_initial_version_cannot_be_deleted()
-    {
-        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
-
-        try {
-            $version = $post->firstVersion->delete();
-        } catch (\Throwable $e) {
-            $this->assertSame('You cannot delete the init version', $e->getMessage());
-        }
-    }
-
-    /**
-     * @test
-     */
     public function user_can_get_diff_of_version()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
@@ -254,7 +240,7 @@ class FeatureTest extends TestCase
 
         $this->assertEquals(
             ['version4', 'version3', 'version2', 'version1'],
-            $post->versionHistory->pluck('contents.title')->toArray(),
+            $post->latestVersions->pluck('contents.title')->toArray(),
         );
     }
 
@@ -271,13 +257,12 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
         $post->update(['title' => 'version5', 'content' => 'version5 content']);
 
-        $this->assertCount(4, $post->versions);
+        $this->assertCount(3, $post->versions);
 
         $post->removeAllVersions();
         $post->refresh();
 
-        // only initial version
-        $this->assertCount(1, $post->versions);
+        $this->assertCount(0, $post->versions);
     }
 
     /**
@@ -369,19 +354,19 @@ class FeatureTest extends TestCase
     /**
      * @test
      */
-    public function init_version_should_include_all_attributes()
+    public function init_version_should_include_all_versionable_attributes()
     {
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
 
         $this->assertCount(1, $post->versions);
         $this->assertDatabaseCount('versions', 1);
 
-        $this->assertSame($post->id, $post->lastVersion->contents['id']);
-        $this->assertSame($post->user_id, $post->lastVersion->contents['user_id']);
+        foreach ($post->getVersionable() as $key) {
+            $this->assertArrayHasKey($key, $post->lastVersion->contents);
+        }
+
         $this->assertSame($post->title, $post->lastVersion->contents['title']);
         $this->assertSame($post->content, $post->lastVersion->contents['content']);
-        $this->assertSame($post->created_at->format('Y-m-d H:i:s'), $post->lastVersion->contents['created_at']);
-        $this->assertSame($post->updated_at->format('Y-m-d H:i:s'), $post->lastVersion->contents['updated_at']);
     }
 
     /**

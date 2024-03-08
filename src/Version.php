@@ -19,7 +19,6 @@ use function tap;
  * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
  * @property array $contents
  * @property int $id
- * @property bool $is_initial
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -35,15 +34,6 @@ class Version extends Model
     protected $casts = [
         'contents' => 'json',
     ];
-
-    protected static function booted()
-    {
-        static::deleting(function (Version $version) {
-            if ($version->is_initial && ! $version->isForceDeleting()) {
-                throw new \Exception('You cannot delete the init version');
-            }
-        });
-    }
 
     public function user(): ?BelongsTo
     {
@@ -137,7 +127,7 @@ class Version extends Model
 
     public function previousVersions(): MorphMany
     {
-        return $this->versionable->versionHistory()
+        return $this->versionable->latestVersions()
             ->where(function ($query) {
                 $query->where('created_at', '<', $this->created_at)
                     ->orWhere(function ($query) {
