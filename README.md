@@ -18,14 +18,14 @@ It's a minimalist way to make your model support version history, and it's very 
 
 ## Requirement
 
-1. PHP >= 8.0.2
+1. PHP >= 8.1.0
 2. laravel/framework >= 9.0
 
 ## Features
 
 -   Keep the specified number of versions.
 -   Whitelist and blacklist for versionable attributes.
--   Easily roll back to the specified version.
+-   Easily revert to the specified version.
 -   Record only changed attributes.
 -   Easy to customize.
 
@@ -46,8 +46,6 @@ And if you want to custom the migration of the versions table, you can publish t
 ```bash
 php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" --tag=migrations
 ```
-
-> After you published the migration files, please update `'migrations' => false` in the config file `config/versionable.php` to disable load the package migrations.
 
 Then run this command to create a database migration:
 
@@ -73,14 +71,14 @@ class Post extends Model
      */
     protected $versionable = ['title', 'content'];
 
-    // Or use blacklist
+    // Or use a blacklist
     //protected $dontVersionable = ['created_at', 'updated_at'];
 
     <...>
 }
 ```
 
-Versions will be created on vensionable model saved.
+Versions will be created on the vensionable model saved.
 
 ```php
 $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
@@ -104,9 +102,9 @@ $post->versionAt('2022-10-06 12:00:00'); // get version from a specific time
 $post->versionAt(\Carbon\Carbon::create(2022, 10, 6, 12));
 ```
 
-### Reversion
+### Revert
 
-Reversion a model instance to the specified version:
+Revert a model instance to the specified version:
 
 ```php
 $post->getVersion(3)->revert();
@@ -116,7 +114,7 @@ $post->getVersion(3)->revert();
 $post->revertToVersion(3);
 ```
 
-#### Reversion without saving
+#### Revert without saving
 
 ```php
 $version = $post->versions()->first();
@@ -163,9 +161,9 @@ Post::withoutVersion(function () use ($post) {
 You can set the following different version policies through property `protected $versionStrategy`:
 
 -   `Overtrue\LaravelVersionable\VersionStrategy::DIFF` - Version content will only contain changed attributes (default strategy).
--   `Overtrue\LaravelVersionable\VersionStrategy::SNAPSHOT` - Version content will contain all versionable attributes values.
+-   `Overtrue\LaravelVersionable\VersionStrategy::SNAPSHOT` - Version content will contain all versionable attribute values.
 
-### Show diff between two versions
+### Show diff between the two versions
 
 ```php
 $diff = $post->getVersion(1)->diff($post->getVersion(2));
@@ -218,28 +216,38 @@ toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
 >
 > `$differOptions` and `$renderOptions` are optional, you can set them following the README of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
 
-### You can use another model(table) for store versions 
+### Using custom version model 
 
-You can define this variable in class, that used this trait to change model(table) for versions\
+You can define `$versionModel` in a model, that used this trait to change the model(table) for versions
+
 > **Note**
 > 
-> Model MUST extend \Overtrue\LaravelVersionable\Version\
+> Model MUST extend class `\Overtrue\LaravelVersionable\Version`;
 
 ```php
 <?php
-//Example for pivot table
+
+class PostVersion extends \Overtrue\LaravelVersionable\Version
+{
+    //
+}
+```
+
+Update the model attribute `$versionModel`:
+
+```php
+<?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
 use Overtrue\LaravelVersionable\Versionable;
 
-class RoleHasPermissions extends Pivot
+class Post extends Model
 {
     use Versionable;
 
-    public string $versionModel = VersionsRolePermission::class;
+    public string $versionModel = PostVersion::class;
 }
-
 ```
 
 ## :heart: Sponsor me
