@@ -244,6 +244,10 @@ class Post extends Model
 }
 ```
 
+## Intergrations
+
+- [mansoorkhan96/filament-versionable](https://github.com/mansoorkhan96/filament-versionable) Effortlessly manage revisions of your Eloquent models in Filament.
+
 ## :heart: Sponsor me
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me.svg?raw=true)](https://github.com/sponsors/overtrue)
