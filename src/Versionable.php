@@ -223,7 +223,11 @@ trait Versionable
             return call_user_func([$this, 'shouldVersioning']);
         }
 
-        return ! empty($this->getVersionableAttributes());
+        if ($this->versions()->count() === 0 || Arr::hasAny($this->getDirty(), $this->versionable)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function getVersionableAttributes(array $replacements = []): array
