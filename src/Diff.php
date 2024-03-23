@@ -60,6 +60,32 @@ class Diff
         return $this->render('SideBySide', $differOptions, $renderOptions);
     }
 
+    protected function getContents(): array {
+        if ($this->toVersion->versionable->getVersionStrategy() === VersionStrategy::DIFF) {
+            if ($this->toVersion->previousVersions()->get()->last()) {
+                $newContents = json_decode($this->toVersion->previousVersions()->get()->last()->getRawOriginal()['contents'], true);
+            } else {
+                $newContents = $this->toVersion->versionable()->firstVersion()->get()->first()->toArray();
+            };
+
+            $oldContents = $this->fromVersion->contents;
+
+            $versionsBeforeThis = $this->toVersion->previousVersions()->get();
+            foreach ($versionsBeforeThis as $version) {
+                if (! empty($version->contents)) {
+                    $newContents = array_merge($newContents, $version->contents);
+                }
+            }
+
+            $newContents = Arr::only($newContents, array_keys($oldContents));
+        } else {
+            $oldContents = $this->fromVersion->contents;
+            $newContents = $this->toVersion->contents;
+        }
+
+        return [$oldContents, $newContents];
+    }
+
     public function render(?string $renderer = null, array $differOptions = [], array $renderOptions = []): array
     {
         if (empty($differOptions)) {
@@ -70,8 +96,7 @@ class Diff
             $renderOptions = $this->renderOptions;
         }
 
-        $oldContents = $this->fromVersion->contents;
-        $newContents = $this->toVersion->contents;
+        list($oldContents, $newContents) = $this->getContents();
 
         $diff = [];
         $createDiff = function ($key, $old, $new) use (&$diff, $renderer, $differOptions, $renderOptions) {
@@ -101,8 +126,7 @@ class Diff
             $differOptions = $this->differOptions;
         }
 
-        $oldContents = $this->fromVersion->contents;
-        $newContents = $this->toVersion->contents;
+        list($oldContents, $newContents) = $this->getContents();
 
         $diffStats = new Collection;
 
