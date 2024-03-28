@@ -134,8 +134,8 @@ class Diff
             if ($newContents[$key] !== $oldContents[$key]) {
                 $diffStats->push(
                     (new Differ(
-                        explode("\n", $newContents[$key]),
-                        explode("\n", $oldContents[$key]),
+                        explode("\n", is_string($newContents[$key]) ? $newContents[$key] : json_encode($newContents[$key])),
+                        explode("\n", is_string($oldContents[$key]) ? $oldContents[$key] : json_encode($oldContents[$key])),
                     ))->getStatistics()
                 );
             }
