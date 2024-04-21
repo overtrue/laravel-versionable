@@ -213,6 +213,23 @@ class DiffTest extends TestCase
         $this->assertEquals(2, $stats['unmodified']); // two lines unmodified
     }
 
+    /**
+     * @test
+     */
+    public function it_can_return_correct_statistics_for_added_keys()
+    {
+        $old = new Version(['contents' => ['title' => 'example title']]);
+
+        // we are adding a new key with two lines
+        $new = new Version(['contents' => ['title' => 'example title', 'content' => "example content\n adding new line"]]);
+
+        $stats = (new Diff($new, $old))->getStatistics();
+
+        $this->assertEquals(2, $stats['inserted']); // two lines inserted
+        $this->assertEquals(0, $stats['deleted']); // no deletions
+        $this->assertEquals(0, $stats['unmodified']); // two lines unmodified
+    }
+
     public function test_diff_nested_array_to_array()
     {
         $oldContent = [

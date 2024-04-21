@@ -131,7 +131,16 @@ class Diff
         $diffStats = new Collection;
 
         foreach ($oldContents as $key => $value) {
-            if ($newContents[$key] !== $oldContents[$key]) {
+            if (! isset($newContents[$key])) {
+                $diffStats->push([
+                    'inserted' => is_string($oldContents[$key])
+                        ? substr_count($oldContents[$key], "\n") + 1
+                        : 1,
+                    'deleted' => 0,
+                    'unmodified' => 0,
+                    'changedRatio' => 1,
+                ]);
+            } else if ($newContents[$key] !== $oldContents[$key]) {
                 $diffStats->push(
                     (new Differ(
                         explode("\n", is_string($newContents[$key]) ? $newContents[$key] : json_encode($newContents[$key])),
