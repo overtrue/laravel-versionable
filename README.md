@@ -33,7 +33,7 @@ composer require overtrue/laravel-versionable -vvv
 First, publish the config file and migrations:
 
 ```bash
-php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider" 
+php artisan vendor:publish --provider="Overtrue\LaravelVersionable\ServiceProvider"
 ```
 
 Then run this command to create a database migration:
@@ -195,20 +195,21 @@ $diff->toArray();
 ### Other formats
 
 ```php
-toArray(array $differOptions = [], array $renderOptions = []): array
-toText(array $differOptions = [], array $renderOptions = []): array
-toJsonText(array $differOptions = [], array $renderOptions = []): array
-toContextText(array $differOptions = [], array $renderOptions = []): array
-toHtml(array $differOptions = [], array $renderOptions = []): array
-toInlineHtml(array $differOptions = [], array $renderOptions = []): array
-toJsonHtml(array $differOptions = [], array $renderOptions = []): array
-toSideBySideHtml(array $differOptions = [], array $renderOptions = []): array
+toArray(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toText(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toJsonText(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toContextText(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toHtml(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toInlineHtml(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toJsonHtml(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
+toSideBySideHtml(array $differOptions = [], array $renderOptions = [], bool $stripTags = false): array
 ```
 
 > **Note**
 >
 > `$differOptions` and `$renderOptions` are optional, you can set them following the README
 > of [jfcherng/php-diff](https://github.com/jfcherng/php-diff#example).
+> `$stripTags` allows you to remove HTML tags from the Diff, helpful when you don't want to show tags.
 
 ### Using custom version model
 
