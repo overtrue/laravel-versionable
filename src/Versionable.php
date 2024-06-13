@@ -53,7 +53,7 @@ trait Versionable
         static::deleted(
             function (Model $model) {
                 /* @var \Overtrue\LaravelVersionable\Versionable|\Overtrue\LaravelVersionable\Version$model */
-                if ($model->isForceDeleting()) {
+                if (method_exists($model, 'isForceDeleting') && $model->isForceDeleting()) {
                     $model->forceRemoveAllVersions();
                 }
             }
