@@ -24,6 +24,7 @@ trait Versionable
     // You can define this variable in class, that used this trait to change Model(table) for versions
     // Model MUST extend \Overtrue\LaravelVersionable\Version
     //public string $versionModel;
+    //public string $userForeignKeyName;
 
     public static function bootVersionable(): void
     {
@@ -319,9 +320,14 @@ trait Versionable
         return $this->versionModel ?? config('versionable.version_model');
     }
 
+    public function getUserForeignKeyName(): string
+    {
+        return $this->userForeignKeyName ?? config('versionable.user_foreign_key');
+    }
+
     public function getVersionUserId()
     {
-        return auth()->id() ?? $this->getAttribute(\config('versionable.user_foreign_key'));
+        return $this->getAttribute($this->getUserForeignKeyName()) ?? auth()->id();
     }
 
     public function getKeepVersionsCount(): string

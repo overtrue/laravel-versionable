@@ -87,13 +87,14 @@ class Version extends Model
         /* @var \Overtrue\LaravelVersionable\Versionable|Model $model */
         $versionClass = $model->getVersionModel();
         $versionConnection = $model->getConnectionName();
+        $userForeignKeyName = $model->getUserForeignKeyName();
 
         $version = new $versionClass();
         $version->setConnection($versionConnection);
 
         $version->versionable_id = $model->getKey();
         $version->versionable_type = $model->getMorphClass();
-        $version->{config('versionable.user_foreign_key')} = $model->getVersionUserId();
+        $version->{$userForeignKeyName} = $model->getVersionUserId();
         $version->contents = $model->getVersionableAttributes($replacements);
 
         if ($time) {
