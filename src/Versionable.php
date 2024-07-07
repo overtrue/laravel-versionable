@@ -249,7 +249,7 @@ trait Versionable
         $versionable = $this->getVersionable();
         $dontVersionable = $this->getDontVersionable();
 
-        $attributes = count($versionable) > 0 ? $this->only($versionable) : $this->getAttributes();
+        $attributes = count($versionable) > 0 ? $this->only($versionable) : $this->attributesToArray();
 
         return Arr::except(array_merge($attributes, $replacements), $dontVersionable);
     }
