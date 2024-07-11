@@ -13,11 +13,12 @@ return new class() extends Migration
     {
         Schema::create('versions', function (Blueprint $table) {
             $uuid = config('versionable.uuid');
+            $uuidVersionId = config('versionable.uuid_version_id', false);
 
             $uuid ? $table->uuid('id')->primary() : $table->bigIncrements('id');
             $table->unsignedBigInteger(config('versionable.user_foreign_key', 'user_id'));
 
-            $uuid ? $table->uuidMorphs('versionable') : $table->morphs('versionable');
+            $uuid || $uuidVersionId ? $table->uuidMorphs('versionable') : $table->morphs('versionable');
 
             $table->json('contents')->nullable();
             $table->timestamps();

@@ -23,7 +23,12 @@ return [
     'user_model' => \App\Models\User::class,
 
     /**
-     * Use uuid for version id.
+     * Use uuid for version id and primary key.
      */
-    'uuid' => false,
+    'uuid' => false, // This must be false if 'uuid_version_id' is set to true
+
+    /**
+     * Use uuid only for version id.
+     */
+    'uuid_version_id' => false,
 ];
