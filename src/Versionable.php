@@ -152,7 +152,15 @@ trait Versionable
         return $this->versions()->find($id);
     }
 
+    /**
+     * @deprecated use `getTrashedVersions` instead
+     */
     public function getThrashedVersions()
+    {
+        return $this->getTrashedVersions();
+    }
+
+    public function getTrashedVersions()
     {
         return $this->versions()->onlyTrashed()->get();
     }
