@@ -77,10 +77,15 @@ trait Versionable
         return null;
     }
 
+    public function getRefreshedModel(Model $model): Model
+    {
+        return $model->newQueryWithoutScopes()->findOrFail($model->getKey());
+    }
+
     public function createInitialVersion(Model $model): Version
     {
         /** @var \Overtrue\LaravelVersionable\Versionable|Model $refreshedModel */
-        $refreshedModel = static::query()->withoutGlobalScopes()->findOrFail($model->getKey());
+        $refreshedModel = $this->getRefreshedModel($model);
 
         /**
          * As initial version should include all $versionable fields,
@@ -240,7 +245,7 @@ trait Versionable
     {
         $versionable = $this->getVersionable();
         $dontVersionable = $this->getDontVersionable();
-        $refreshedModel = static::query()->withoutGlobalScopes()->findOrFail($this->getKey());
+        $refreshedModel = $this->getRefreshedModel($this);
 
         $keys = match ($strategy) {
             VersionStrategy::DIFF => array_keys($this->getDirty()),
