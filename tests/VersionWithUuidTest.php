@@ -11,7 +11,7 @@ class VersionWithUuidTest extends TestCase
         $app['config']->set('versionable.uuid', true);
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -23,7 +23,7 @@ class VersionWithUuidTest extends TestCase
         ]);
     }
 
-    public function testUuid()
+    public function test_uuid()
     {
         $user = User::create(['name' => 'overtrue']);
         $this->actingAs($user);

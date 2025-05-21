@@ -18,13 +18,13 @@ trait Versionable
     protected bool $forceDeleteVersion = false;
 
     // You can add these properties to you versionable model
-    //protected $versionable = [];
-    //protected $dontVersionable = ['*'];
+    // protected $versionable = [];
+    // protected $dontVersionable = ['*'];
 
     // You can define this variable in class, that used this trait to change Model(table) for versions
     // Model MUST extend \Overtrue\LaravelVersionable\Version
-    //public string $versionModel;
-    //public string $userForeignKeyName;
+    // public string $versionModel;
+    // public string $userForeignKeyName;
 
     public static function bootVersionable(): void
     {
