@@ -127,38 +127,39 @@ class FeatureTest extends TestCase
      */
     public function it_can_revert_to_target_version()
     {
+        Version::disableOrderingVersionsByTimestamp();
+
+        // v1
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        // v2
         $post->update(['title' => 'version2', 'extends' => ['foo2' => 'bar2']]);
+        // v3
         $post->update(['title' => 'version3', 'content' => 'version3 content', 'extends' => ['name' => 'overtrue']]);
+        // v4
         $post->update(['title' => 'version4', 'content' => 'version4 content']);
 
+        $versions = $post->versions()->orderBy('id', 'asc')->get()->keyBy('id');
+
         // #29
-        $version1 = $post->firstVersion;
-        $post = $version1->revertWithoutSaving();
+        $version1 = $versions[1];
+        $post = $version1->revertWithoutSaving(); // revert to v1
 
         $this->assertSame('version1', $post->title);
         $this->assertSame('version1 content', $post->content);
         $this->assertNull($post->extends);
 
+        $post->refresh(); // v4
+
+        // revert to version 2
+        $post->revertToVersion(2);
         $post->refresh();
 
-
-        $version2 = $post->firstVersion->nextVersion();
-        $this->assertSame('version2', $version2->contents['title']);
-        // only title updated
-        $this->assertNull($version2->contents['content'] ?? null);
-        $this->assertSame(json_encode(['foo2' => 'bar2']), $version2->contents['extends']);
-
-        // revert version 2
-        $post->revertToVersion($post->firstVersion->nextVersion()->id);
-        $post->refresh();
-
-        // only title updated
+        // only title updated, result = v1+v2
         $this->assertSame('version2', $post->title);
-        $this->assertSame('version4 content', $post->content);
+        $this->assertSame('version1 content', $post->content);
         $this->assertSame(['foo2' => 'bar2'], $post->extends);
 
-        // revert version 3
+        // revert to version 3
         $post->revertToVersion(3);
         $post->refresh();
 
@@ -167,7 +168,7 @@ class FeatureTest extends TestCase
         $this->assertSame('version3 content', $post->content);
         $this->assertSame(['name' => 'overtrue'], $post->extends);
 
-        // revert version 4
+        // revert to version 4
         $post->revertToVersion(4);
         $post->refresh();
 
@@ -175,6 +176,31 @@ class FeatureTest extends TestCase
         $this->assertSame('version4', $post->title);
         $this->assertSame('version4 content', $post->content);
         $this->assertSame(['name' => 'overtrue'], $post->extends);
+
+        Version::enableOrderingVersionsByTimestamp();
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_revert_to_target_version_using_diff_strategy()
+    {
+        Version::disableOrderingVersionsByTimestamp();
+
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']); //v1
+        $post->update(['title' => 'version2']); //v2
+        $post->update(['content' => 'version3 content']); //v3
+
+        $version2 = $post->firstVersion->nextVersion();
+        $this->assertSame('version2', $version2->contents['title']);
+
+        $post->revertToVersion($version2->id);
+        $post->refresh();
+
+        $this->assertSame('version2', $post->title);
+        $this->assertSame('version1 content', $post->content);
+
+        Version::enableOrderingVersionsByTimestamp();
     }
 
     /**
@@ -243,6 +269,7 @@ class FeatureTest extends TestCase
      */
     public function previous_versions_created_later_on_will_have_correct_order()
     {
+
         $this->travelTo(Carbon::create(2022, 10, 2, 14, 0));
 
         $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
@@ -257,7 +284,7 @@ class FeatureTest extends TestCase
         $post->update(['title' => 'version4']);
         $post->refresh();
 
-        $this->travelTo( Carbon::create(2022, 10, 2, 14, 0));
+        $this->travelTo(Carbon::create(2022, 10, 2, 14, 0));
         $post->update(['title' => 'version3']);
         $post->refresh();
 
@@ -275,6 +302,8 @@ class FeatureTest extends TestCase
      */
     public function user_can_get_ordered_history()
     {
+        Version::enableOrderingVersionsByTimestamp();
+
         $post = Post::create(['title' => 'version2', 'content' => 'version2 content']);
         $post->update(['title' => 'version3']);
         $post->update(['title' => 'version4']);

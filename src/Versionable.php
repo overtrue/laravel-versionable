@@ -45,9 +45,11 @@ trait Versionable
         });
 
         static::updated(function (Model $model) {
-            if (static::$versioning) {
+            if (static::$versioning && $model->shouldBeVersioning()) {
                 /** @var \Overtrue\LaravelVersionable\Versionable $model */
-                $model->createVersion();
+                return tap(Version::createForModel($model), function () use ($model) {
+                    $model->removeOldVersions($model->getKeepVersionsCount());
+                });
             }
         });
 
@@ -62,12 +64,17 @@ trait Versionable
     }
 
     /**
+     * @deprecated will remove at 6.0
+     *
      * @param  string|\DateTimeInterface|null  $time
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
      */
     public function createVersion(array $replacements = [], $time = null): ?Version
     {
+        // get unsaved versionable attributes
+        $replacements = array_merge($this->getDirty(), $replacements);
+
         if ($this->shouldBeVersioning() || ! empty($replacements)) {
             return tap(Version::createForModel($this, $replacements, $time), function () {
                 $this->removeOldVersions($this->getKeepVersionsCount());

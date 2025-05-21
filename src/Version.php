@@ -30,6 +30,14 @@ class Version extends Model
     protected $guarded = [];
 
     /**
+     * This property is used to determine whether the versions should be ordered by timestamp or not.
+     * This is useful when you want to create a version for a model with specific created_at timestamp.
+     *
+     * @link https://github.com/overtrue/laravel-versionable/pull/44
+     */
+    protected static bool $orderingVersionsByTimestamp = true;
+
+    /**
      * @var array
      */
     protected $casts = [
@@ -115,10 +123,11 @@ class Version extends Model
     {
         $original = $this->versionable->getRawOriginal();
 
+        // apply the previous versions
         switch ($this->versionable->getVersionStrategy()) {
             case VersionStrategy::DIFF:
                 // v1 + ... + vN
-                $versionsBeforeThis = $this->previousVersions()->orderOldestFirst()->get();
+                $versionsBeforeThis = $this->previousVersions()->reorder()->orderOldestFirst()->get();
                 foreach ($versionsBeforeThis as $version) {
                     if (! empty($version->contents)) {
                         $this->versionable->setRawAttributes(array_merge($original, $version->contents));
@@ -134,7 +143,10 @@ class Version extends Model
                 }
         }
 
+        // apply the latest version
         if (! empty($this->contents)) {
+            // get the original attributes for insert(not been casted)
+            $original = $this->versionable->getAttributesForInsert();
             $this->versionable->setRawAttributes(array_merge($original, $this->contents));
         }
 
@@ -143,12 +155,22 @@ class Version extends Model
 
     public function scopeOrderOldestFirst(Builder $query): Builder
     {
-        return $query->oldest()->oldest('id');
+        // if the versionable model enabled ordering by timestamp
+        if (self::shouldOrderByTimestamp()) {
+            return $query->oldest()->oldest('id');
+        }
+
+        return $query->oldest('id');
     }
 
     public function scopeOrderLatestFirst(Builder $query): Builder
     {
-        return $query->latest()->latest('id');
+        // if the versionable model enabled ordering by timestamp
+        if (self::shouldOrderByTimestamp()) {
+            return $query->latest()->latest('id');
+        }
+
+        return $query->latest('id');
     }
 
     public function previousVersions(): MorphMany
@@ -194,5 +216,43 @@ class Version extends Model
         }
 
         return new Diff($this, $toVersion, $differOptions, $renderOptions);
+    }
+
+    /**
+     * @deprecated will remove at 6.0
+     */
+    public static function shouldOrderByTimestamp(): bool
+    {
+        return static::$orderingVersionsByTimestamp;
+    }
+
+    /**
+     * @deprecated will remove at 6.0
+     */
+    public static function withoutOrderingVersionsByTimestamp(callable $callback): void
+    {
+        $lastState = static::$orderingVersionsByTimestamp;
+
+        static::disableOrderingVersionsByTimestamp();
+
+        \call_user_func($callback);
+
+        static::$orderingVersionsByTimestamp = $lastState;
+    }
+
+    /**
+     * @deprecated will remove at 6.0
+     */
+    public static function disableOrderingVersionsByTimestamp(): void
+    {
+        static::$orderingVersionsByTimestamp = false;
+    }
+
+    /**
+     * @deprecated will remove at 6.0
+     */
+    public static function enableOrderingVersionsByTimestamp(): void
+    {
+        static::$orderingVersionsByTimestamp = true;
     }
 }
