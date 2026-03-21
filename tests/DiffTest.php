@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Jfcherng\Diff\Differ;
 use Jfcherng\Diff\DiffHelper;
 use Overtrue\LaravelVersionable\Diff;
 use Overtrue\LaravelVersionable\Version;
@@ -166,7 +167,7 @@ class DiffTest extends TestCase
 
         $new = new Version(['contents' => ['title' => '<p>version2</p>', 'content' => str_replace('Para-10', 'Para-10 has now changed', $content)]]);
 
-        $diff = (new Diff($new, $old))->toSideBySideHtml(['context' => \Jfcherng\Diff\Differ::CONTEXT_ALL], stripTags: false);
+        $diff = (new Diff($new, $old))->toSideBySideHtml(['context' => Differ::CONTEXT_ALL], stripTags: false);
 
         assertTrue(str_contains($diff['content'], 'Para-2'));
     }

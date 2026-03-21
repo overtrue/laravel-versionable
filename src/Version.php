@@ -2,6 +2,7 @@
 
 namespace Overtrue\LaravelVersionable;
 
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use function in_array;
 use function tap;
 
 /**
- * @property Model|\Overtrue\LaravelVersionable\Versionable $versionable
+ * @property Model|Versionable $versionable
  * @property array $contents
  * @property int $id
  * @property Carbon $created_at
@@ -88,7 +89,7 @@ class Version extends Model
     /**
      * @param  string|\DateTimeInterface|null  $time
      *
-     * @throws \Carbon\Exceptions\InvalidFormatException
+     * @throws InvalidFormatException
      */
     public static function createForModel(Model $model, array $replacements = [], $time = null): Version
     {
@@ -136,7 +137,7 @@ class Version extends Model
                 break;
             case VersionStrategy::SNAPSHOT:
                 // v1 + vN
-                /** @var \Overtrue\LaravelVersionable\Version $initVersion */
+                /** @var Version $initVersion */
                 $initVersion = $this->versionable->versions()->first();
                 if (! empty($initVersion->contents)) {
                     $this->versionable->setRawAttributes(array_merge($original, $initVersion->contents));

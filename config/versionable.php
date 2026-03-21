@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use Overtrue\LaravelVersionable\Version;
+
 return [
     /*
      * Keep versions, you can redefine in target model.
@@ -15,12 +18,12 @@ return [
     /*
      * The model class for store versions.
      */
-    'version_model' => \Overtrue\LaravelVersionable\Version::class,
+    'version_model' => Version::class,
 
     /**
      * The model class for user.
      */
-    'user_model' => \App\Models\User::class,
+    'user_model' => User::class,
 
     /**
      * Use uuid for version id.

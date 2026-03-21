@@ -2,6 +2,8 @@
 
 namespace Overtrue\LaravelVersionable;
 
+use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -9,7 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
 /**
- * @property \Illuminate\Database\Eloquent\Collection<\Overtrue\LaravelVersionable\Version> $versions
+ * @property Collection<Version> $versions
  */
 trait Versionable
 {
@@ -31,14 +33,14 @@ trait Versionable
         static::created(function (Model $model) {
             if (static::$versioning) {
                 // init version should include all $versionable fields.
-                /** @var \Overtrue\LaravelVersionable\Versionable|Model $model */
+                /** @var Versionable|Model $model */
                 $model->createInitialVersion($model);
             }
         });
 
         static::updating(function (Model $model) {
             // ensure the initial version exists before updating
-            /** @var \Overtrue\LaravelVersionable\Versionable $model */
+            /** @var Versionable $model */
             if (static::$versioning && $model->versions()->count() === 0) {
                 $model->createInitialVersion($model);
             }
@@ -46,7 +48,7 @@ trait Versionable
 
         static::updated(function (Model $model) {
             if (static::$versioning && $model->shouldBeVersioning()) {
-                /** @var \Overtrue\LaravelVersionable\Versionable $model */
+                /** @var Versionable $model */
                 return tap(Version::createForModel($model), function () use ($model) {
                     $model->removeOldVersions($model->getKeepVersionsCount());
                 });
@@ -68,7 +70,7 @@ trait Versionable
      *
      * @param  string|\DateTimeInterface|null  $time
      *
-     * @throws \Carbon\Exceptions\InvalidFormatException
+     * @throws InvalidFormatException
      */
     public function createVersion(array $replacements = [], $time = null): ?Version
     {
@@ -91,7 +93,7 @@ trait Versionable
 
     public function createInitialVersion(Model $model): Version
     {
-        /** @var \Overtrue\LaravelVersionable\Versionable|Model $refreshedModel */
+        /** @var Versionable|Model $refreshedModel */
         $refreshedModel = $this->getRefreshedModel($model);
 
         /**
@@ -148,7 +150,7 @@ trait Versionable
      * @param  string|\DateTimeInterface|null  $time
      * @param  \DateTimeZone|string|null  $tz
      *
-     * @throws \Carbon\Exceptions\InvalidFormatException
+     * @throws InvalidFormatException
      */
     public function versionAt($time = null, $tz = null): ?Version
     {
