@@ -15,15 +15,24 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          tools: composer:v2
       - name: Install dependencies
-        run: composer install
+        run: composer install --no-interaction --prefer-dist
+      - name: Validate Composer metadata
+        run: composer validate --strict
+      - name: Audit dependencies
+        run: composer audit --locked
       - name: Pint
         run: composer check-style
 
   phpunit:
+    env:
+      COMPOSER_POLICY_ABANDONED_BLOCK: '1'
     strategy:
+      fail-fast: false
       matrix:
         php_version: ['8.3', '8.4', '8.5']
+        dependencies: ['locked', 'lowest', 'latest']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -31,7 +40,17 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php_version }}
+          tools: composer:v2
       - name: Install dependencies
-        run: composer install
+        if: matrix.dependencies == 'locked'
+        run: composer install --no-interaction --prefer-dist
+      - name: Install lowest safe dependencies
+        if: matrix.dependencies == 'lowest'
+        run: composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist
+      - name: Install latest dependencies
+        if: matrix.dependencies == 'latest'
+        run: composer update --prefer-stable --no-interaction --prefer-dist
+      - name: Audit dependencies
+        run: composer audit --locked
       - name: PHPUnit
-        run: ./vendor/bin/phpunit --do-not-fail-on-warning --do-not-fail-on-deprecation
+        run: composer test

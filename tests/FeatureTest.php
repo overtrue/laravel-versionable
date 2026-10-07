@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use Overtrue\LaravelVersionable\Diff;
 use Overtrue\LaravelVersionable\Version;
 use Overtrue\LaravelVersionable\VersionStrategy;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class FeatureTest extends TestCase
 {
@@ -341,6 +342,110 @@ class FeatureTest extends TestCase
 
         $this->assertFalse(Post::getVersioning());
         $post->refresh();
+    }
+
+    #[DataProvider('withoutVersionExceptionProvider')]
+    public function test_without_version_restores_previous_state_after_a_throwable(string $exceptionClass, bool $initialState, bool $nested)
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $exception = new $exceptionClass('Callback failed');
+
+        if (! $initialState) {
+            Post::disableVersioning();
+        }
+
+        $callback = function () use ($post, $exception, $initialState) {
+            $this->assertFalse(Post::getVersioning());
+            $post->update(['title' => 'unversioned']);
+            $this->assertSame(1, $post->versions()->count());
+
+            if (! $initialState) {
+                Post::enableVersioning();
+            }
+
+            throw $exception;
+        };
+
+        try {
+            Post::withoutVersion(function () use ($callback, $nested) {
+                if ($nested) {
+                    Post::withoutVersion($callback);
+                } else {
+                    $callback();
+                }
+            });
+            $this->fail('The callback throwable was not propagated.');
+        } catch (\Throwable $caught) {
+            $this->assertSame($exception, $caught);
+        }
+
+        $post->update(['title' => 'after callback']);
+
+        $this->assertSame($initialState ? 2 : 1, $post->versions()->count());
+        $this->assertSame($initialState, Post::getVersioning());
+    }
+
+    public static function withoutVersionExceptionProvider(): array
+    {
+        return [
+            'exception while enabled' => [\RuntimeException::class, true, false],
+            'error while enabled' => [\Error::class, true, false],
+            'exception while disabled' => [\RuntimeException::class, false, false],
+            'error while disabled' => [\Error::class, false, false],
+            'nested exception while enabled' => [\RuntimeException::class, true, true],
+            'nested error while enabled' => [\Error::class, true, true],
+            'nested exception while disabled' => [\RuntimeException::class, false, true],
+            'nested error while disabled' => [\Error::class, false, true],
+        ];
+    }
+
+    public function test_without_version_keeps_versioning_disabled_after_a_nested_callback()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+
+        Post::withoutVersion(function () use ($post) {
+            Post::withoutVersion(function () use ($post) {
+                $this->assertFalse(Post::getVersioning());
+                $post->update(['title' => 'inner callback']);
+            });
+
+            $this->assertFalse(Post::getVersioning());
+            $post->update(['title' => 'outer callback']);
+        });
+
+        $this->assertSame(1, $post->versions()->count());
+        $this->assertTrue(Post::getVersioning());
+
+        $post->update(['title' => 'after callback']);
+        $this->assertSame(2, $post->versions()->count());
+    }
+
+    public function test_without_version_keeps_versioning_disabled_after_catching_a_nested_exception()
+    {
+        $post = Post::create(['title' => 'version1', 'content' => 'version1 content']);
+        $exception = new \RuntimeException('Inner callback failed');
+
+        Post::withoutVersion(function () use ($post, $exception) {
+            try {
+                Post::withoutVersion(function () use ($post, $exception) {
+                    $post->update(['title' => 'inner callback']);
+
+                    throw $exception;
+                });
+                $this->fail('The inner callback exception was not propagated.');
+            } catch (\RuntimeException $caught) {
+                $this->assertSame($exception, $caught);
+            }
+
+            $this->assertFalse(Post::getVersioning());
+            $post->update(['title' => 'outer callback']);
+        });
+
+        $this->assertSame(1, $post->versions()->count());
+        $this->assertTrue(Post::getVersioning());
+
+        $post->update(['title' => 'after callback']);
+        $this->assertSame(2, $post->versions()->count());
     }
 
     public function test_versions_can_be_soft_delete_and_restore()

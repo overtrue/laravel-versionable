@@ -386,9 +386,11 @@ trait Versionable
 
         static::disableVersioning();
 
-        \call_user_func($callback);
-
-        static::$versioning = $lastState;
+        try {
+            \call_user_func($callback);
+        } finally {
+            static::$versioning = $lastState;
+        }
     }
 
     public static function disableVersioning(): void
